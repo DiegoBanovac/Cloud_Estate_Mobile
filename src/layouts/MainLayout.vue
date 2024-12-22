@@ -104,7 +104,7 @@
   font-size: 1.5rem;
 }
 .custom-header {
-  height: 100px; /* Visina footer-a */
+  height: 60px; /* Visina footer-a */
   background-color: #ffffff;
 
 }
