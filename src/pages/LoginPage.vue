@@ -8,12 +8,12 @@
         </q-card-section>
 
         <q-card-section>
-          <!-- Username Input Field -->
+          <!-- Email Input Field -->
           <q-input
-            v-model="user.username"
-            label="Korisničko ime"
+            v-model="user.email"
+            label="Email"
             filled
-            :rules="[val => val && val.length > 0 || 'Unesite korisničko ime']"
+            :rules="[val => val && val.length > 0,'Unesite email']"
             class="q-mb-md"
           />
 
@@ -23,7 +23,7 @@
             label="Lozinka"
             type="password"
             filled
-            :rules="[val => val && val.length > 0 || 'Unesite lozinku']"
+            :rules="[val => val && val.length > 0,'Unesite lozinku']"
             class="q-mb-md"
           />
 
@@ -41,49 +41,47 @@
 </template>
 
 <script>
+import axios from "axios"; // Uvoz axios za slanje POST zahtjeva
+
 export default {
   data() {
     return {
-      // Define the user object for binding to the input fields
       user: {
-        username: '',
-        password: ''
+        email: '',  // Polje za email
+        password: ''  // Polje za lozinku
       }
     };
   },
-  methods: {
-    // Method to handle form submission (e.g., checking username and password)
+methods: {
+    // Metoda za podnošenje forme
     submitForm() {
       if (this.isFormValid()) {
-        // Here you would typically call an API or check credentials
-        console.log('Prijava uspješna za korisnika:', this.user.username);
-
-        // Simulate a success message after submission
-        this.$q.notify({
-          type: 'positive',
-          message: 'Prijava uspješna!',
-          position: 'top',
+        axios.post('http://localhost:3000/api/login', {
+          email: this.user.email,
+          lozinka: this.user.password
+        })
+        .then(response => {
+          console.log(response.data.message);
+          alert('Prijava uspješna!');  // Prikazuje obavijest korisniku
+          this.resetForm();
+        })
+        .catch(error => {
+          console.error("Greška prilikom prijave:", error);
+          alert('Neispravan email ili lozinka.');  // Prikazuje grešku
         });
-
-        // Reset the form
-        this.resetForm();
       } else {
-        this.$q.notify({
-          type: 'negative',
-          message: 'Molimo ispunite sve obavezne podatke.',
-          position: 'top',
-        });
+        alert('Molimo ispunite sve obavezne podatke.');  // Obavijest ako forma nije ispunjena
       }
     },
 
-    // Check if the form is valid
+    // Provjera validnosti forme
     isFormValid() {
-      return this.user.username && this.user.password;
+      return this.user.email && this.user.password;
     },
 
-    // Reset the form fields
+    // Resetiranje forme
     resetForm() {
-      this.user.username = '';
+      this.user.email = '';
       this.user.password = '';
     }
   }
@@ -93,4 +91,3 @@ export default {
 <style scoped>
 /* Optional: Add custom styles if needed */
 </style>
-¸¸
