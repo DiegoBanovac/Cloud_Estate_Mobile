@@ -111,7 +111,7 @@
 .custom-toolbar {
   height: 60px; /* Visina footer-a */
   background-color: #ffffff;
-  border-top: 2px solid rgb(54, 0, 251);
+  border-top: 2px solid rgb(45, 144, 226);
   border-radius: 15px;
 }
 
@@ -133,14 +133,14 @@
 }
 .icon-map {
   font-size: 18px; /* Manje ikone */
-  color: rgb(54, 0, 251);
+  color: rgb(45, 144, 226);
 }
 .button-text-map {
   font-family: "Roboto", serif;
   font-size: 12px; /* Manji tekst */
   font-weight: 400;
   margin-top: 0px; /* Razmak između ikone i teksta */
-  color: rgb(54, 0, 251);
+  color: rgb(45, 144, 226);
   text-align: center;
   line-height: 1.2; /* Povećava vertikalnu čitljivost */
 }
