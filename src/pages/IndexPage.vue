@@ -11,35 +11,82 @@
 
     <!-- Prikaz nekretnina -->
     <q-card
-      v-for="nekretnina in filtriraneNekretnine"
+      v-for="(nekretnina, index) in filtriraneNekretnine"
       :key="nekretnina.Sifra_nekretnine"
       class="my-card"
       flat
       bordered>
-      <q-img
-        :src="nekretnina.Slika_nekretnine"
-        alt="Slika nekretnine"
-        spinner-color="orange"
-        @error="handleImageError"
-      />
+
+      <q-carousel
+        v-model="currentSlide[index]"
+        animated
+        arrows
+        navigation
+        infinite
+        style="height: 300px; width: 100%;"
+      >
+        <q-carousel-slide
+          :name="1"
+          :img-src="nekretnina.Slika_nekretnine"
+        />
+        <q-carousel-slide
+          :name="2"
+          :img-src="nekretnina.Slika_nekretnine_2"
+        />
+        <q-carousel-slide
+          :name="3"
+          :img-src="nekretnina.Slika_nekretnine_3"
+        />
+      </q-carousel>
 
       <q-card-section>
-        <div class="text-overline text-blue-7">{{ nekretnina.Tip_nekretnine }}</div>
+        <div class="text-overline text-blue-8">{{ nekretnina.Tip_nekretnine }}</div>
         <div class="text-h5 q-mt-sm q-mb-xs">{{ nekretnina.Adresa_nekretnine }}</div>
-        <div class="text-caption text-grey">
-          {{ nekretnina.Opis_nekretnine }}
-        </div>
-        <div class="text-caption text-black">
-          {{ nekretnina.Kvadratura_nekretnine + "m2" }}
+        <div class="text-caption text-grey">{{ nekretnina.Opis_nekretnine }}</div>
+        <div class="info-row">
+          <div class="info-item">
+            <q-icon name="hotel" size="sm" />
+            <span>{{ nekretnina.Broj_soba }} beds</span>
+          </div>
+          <div class="info-item">
+            <q-icon name="bathtub" size="sm" />
+            <span>{{ nekretnina.Broj_kupaonica }} bathrooms</span>
+          </div>
+          <div class="info-item">
+            <q-icon name="square_foot" size="sm" />
+            <span>{{ nekretnina.Kvadratura_nekretnine }}m²</span>
+          </div>
         </div>
       </q-card-section>
 
       <q-card-actions class="buttons">
-        <q-btn flat color="primary" label="Book" />
-        <q-btn flat color="secondary" label="Share" />
+        <q-btn
+          flat
+          label="Book"
+          style="
+            background-color: #007bff;
+            color: white;
+            border-radius: 30px;
+            padding: 0.5rem 1.5rem;
+            font-weight: bold;
+          "
+        />
+        <q-btn
+          flat
+          label="Share"
+          style="
+            background-color: white;
+            color: black;
+            border-radius: 30px;
+            border: 1px solid black;
+            padding: 0.5rem 1.5rem;
+            font-weight: 400;
+          "
+        />
         <q-space />
       </q-card-actions>
     </q-card>
+
   </div>
 </template>
 
@@ -50,7 +97,8 @@ export default {
   data() {
     return {
       text: "", // Za pretragu
-      nekretnine: [] // Spremanje podataka o nekretninama
+      nekretnine: [], // Spremanje podataka o nekretninama
+      currentSlide: [] // Trenutno prikazani slajd za svaku nekretninu
     };
   },
   mounted() {
@@ -61,6 +109,7 @@ export default {
       try {
         const response = await axios.get("http://192.168.1.37:3000/api/nekretnine");
         this.nekretnine = response.data;
+        this.currentSlide = this.nekretnine.map(() => 1); // Inicijaliziraj svaki slajd na 1
       } catch (error) {
         console.error("Greška prilikom dohvaćanja podataka:", error);
       }
@@ -94,6 +143,23 @@ export default {
   font-size: 1.5rem
   color: rgb(45, 144, 226)
 
+.info-row
+  display: flex
+  justify-content: space-between
+  margin-top: 0.5rem
+
+.info-item
+  display: flex
+  align-items: center
+  font-size: 0.9rem
+  color: #666
+
+.info-item q-icon
+  margin-right: 0.5rem
+
 .buttons
-  margin-left: 13rem
+  display: flex
+  justify-content: space-between
+  margin-top: 1rem
+  margin-left: 9rem
 </style>

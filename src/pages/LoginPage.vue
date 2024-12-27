@@ -56,7 +56,7 @@ methods: {
     // Metoda za podnošenje forme
     submitForm() {
       if (this.isFormValid()) {
-        axios.post('http://localhost:3000/api/login', {
+        axios.post('http://192.168.1.37:3000/api/login', {
           email: this.user.email,
           lozinka: this.user.password
         })

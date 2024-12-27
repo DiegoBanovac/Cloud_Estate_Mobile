@@ -78,7 +78,7 @@ export default {
         "telefon": this.telefon,
         "lozinka": this.lozinka
       }
-      await axios.post('http://localhost:3000/api/registracija_korisnika', formData)
+      await axios.post('http://192.168.1.37:3000/api/registracija_korisnika', formData)
         .then(result => {
           console.log(result.data)
         })
