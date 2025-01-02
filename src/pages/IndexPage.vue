@@ -1,13 +1,6 @@
 <template>
   <div class="q-pa-md row items-start q-gutter-md">
-    <header class="h1">Featured</header>
-
-    <!-- Pretraga -->
-    <q-input class="search-bar" rounded outlined v-model="text">
-      <template v-slot:append>
-        <q-avatar icon="search"></q-avatar>
-      </template>
-    </q-input>
+    <header class="h2">Istaknuto</header>
 
     <!-- Prikaz nekretnina -->
     <q-card
@@ -15,8 +8,8 @@
       :key="nekretnina.Sifra_nekretnine"
       class="my-card"
       flat
-      bordered>
-
+      bordered
+    >
       <q-carousel
         v-model="currentSlide[index]"
         animated
@@ -25,32 +18,27 @@
         infinite
         style="height: 300px; width: 100%;"
       >
-        <q-carousel-slide
-          :name="1"
-          :img-src="nekretnina.Slika_nekretnine"
-        />
-        <q-carousel-slide
-          :name="2"
-          :img-src="nekretnina.Slika_nekretnine_2"
-        />
-        <q-carousel-slide
-          :name="3"
-          :img-src="nekretnina.Slika_nekretnine_3"
-        />
+        <q-carousel-slide :name="1" :img-src="nekretnina.Slika_nekretnine" />
+        <q-carousel-slide :name="2" :img-src="nekretnina.Slika_nekretnine_2" />
+        <q-carousel-slide :name="3" :img-src="nekretnina.Slika_nekretnine_3" />
       </q-carousel>
 
       <q-card-section>
-        <div class="text-overline text-blue-8">{{ nekretnina.Tip_nekretnine }}</div>
-        <div class="text-h5 q-mt-sm q-mb-xs">{{ nekretnina.Adresa_nekretnine }}</div>
+        <div class="text-overline text-blue-8">
+          {{ nekretnina.Tip_nekretnine }}
+        </div>
+        <div class="text-h5 q-mt-sm q-mb-xs">
+          {{ nekretnina.Adresa_nekretnine }}
+        </div>
         <div class="text-caption text-grey">{{ nekretnina.Opis_nekretnine }}</div>
         <div class="info-row">
           <div class="info-item">
             <q-icon name="hotel" size="sm" />
-            <span>{{ nekretnina.Broj_soba }} beds</span>
+            <span>{{ nekretnina.Broj_soba }} sobe</span>
           </div>
           <div class="info-item">
             <q-icon name="bathtub" size="sm" />
-            <span>{{ nekretnina.Broj_kupaonica }} bathrooms</span>
+            <span>{{ nekretnina.Broj_kupaonica }} kupaonice</span>
           </div>
           <div class="info-item">
             <q-icon name="square_foot" size="sm" />
@@ -59,34 +47,37 @@
         </div>
       </q-card-section>
 
-      <q-card-actions class="buttons">
-        <q-btn
-          flat
-          label="Book"
-          style="
-            background-color: #007bff;
-            color: white;
-            border-radius: 30px;
-            padding: 0.5rem 1.5rem;
-            font-weight: bold;
-          "
-        />
-        <q-btn
-          flat
-          label="Share"
-          style="
-            background-color: white;
-            color: black;
-            border-radius: 30px;
-            border: 1px solid black;
-            padding: 0.5rem 1.5rem;
-            font-weight: 400;
-          "
-        />
-        <q-space />
+      <!-- Updated Actions -->
+      <q-card-actions class="q-card-actions">
+        <span class="price">€{{ nekretnina.Cijena_nekretnine }}</span>
+        <div class="button-group">
+          <q-btn
+            flat
+            label="Kupi"
+            style="
+              background-color: #007bff;
+              color: white;
+              border-radius: 30px;
+              padding: 0.5rem 1.5rem;
+              font-weight: bold;
+              margin-right: 0.5rem;
+            "
+          />
+          <q-btn
+            flat
+            label="Podijeli"
+            style="
+              background-color: white;
+              color: black;
+              border-radius: 30px;
+              border: 1px solid #e0e0e0;
+              padding: 0.5rem 1.5rem;
+              font-weight: 400;
+            "
+          />
+        </div>
       </q-card-actions>
     </q-card>
-
   </div>
 </template>
 
@@ -98,7 +89,7 @@ export default {
     return {
       text: "", // Za pretragu
       nekretnine: [], // Spremanje podataka o nekretninama
-      currentSlide: [] // Trenutno prikazani slajd za svaku nekretninu
+      currentSlide: [], // Trenutno prikazani slajd za svaku nekretninu
     };
   },
   mounted() {
@@ -107,7 +98,9 @@ export default {
   methods: {
     async fetchNekretnine() {
       try {
-        const response = await axios.get("http://192.168.1.37:3000/api/nekretnine");
+        const response = await axios.get(
+          "http://192.168.1.37:3000/api/nekretnine"
+        );
         this.nekretnine = response.data;
         this.currentSlide = this.nekretnine.map(() => 1); // Inicijaliziraj svaki slajd na 1
       } catch (error) {
@@ -116,7 +109,7 @@ export default {
     },
     handleImageError(event) {
       event.target.src = "https://via.placeholder.com/350x200?text=No+Image";
-    }
+    },
   },
   computed: {
     // Filtriranje nekretnina prema adresi
@@ -124,8 +117,8 @@ export default {
       return this.nekretnine.filter((nekretnina) =>
         nekretnina.Adresa_nekretnine.toLowerCase().includes(this.text.toLowerCase())
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -137,7 +130,7 @@ export default {
 .search-bar
   width: 100%
 
-.h1
+.h2
   font-family: "Roboto", serif
   font-weight: 500
   font-size: 1.5rem
@@ -157,9 +150,18 @@ export default {
 .info-item q-icon
   margin-right: 0.5rem
 
-.buttons
+.q-card-actions
   display: flex
   justify-content: space-between
-  margin-top: 1rem
-  margin-left: 9rem
+  align-items: center
+  padding-left: 1rem
+  padding-top: 3rem
+
+.price
+  font-family: "Roboto", serif
+  font-weight: 700
+  font-size: 1.2rem
+  color: #007bff
+  white-space: nowrap
+  margin-right: 1rem
 </style>

@@ -3,7 +3,8 @@
     <q-header class="custom-header">
       <q-toolbar class="text-black">
       <q-toolbar-title class="h1">Cloud Estate</q-toolbar-title>
-      <q-btn flat round dense icon="account_circle" />
+      <img src="../assets/croatia.png" alt="Button Image" style="width: 24px; height: 24px; margin-top: 10px; margin-right: 15px;" />
+      <q-btn flat round dense icon="account_circle" style="margin-top: 10px;" />
     </q-toolbar>
     </q-header>
     <!-- Footer s gumbovima -->
@@ -102,17 +103,22 @@
   font-family: "Roboto", serif;
   font-weight: 800;
   font-size: 1.5rem;
+  margin-top: 10px;
 }
 .custom-header {
   height: 60px; /* Visina footer-a */
   background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding-left: 2px;
 
 }
 .custom-toolbar {
   height: 60px; /* Visina footer-a */
   background-color: #ffffff;
-  border-top: 2px solid #007bff;
+  border-top: 0.5px solid #e0e0e0;
   border-radius: 15px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
 .full-width {
