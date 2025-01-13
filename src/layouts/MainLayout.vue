@@ -2,43 +2,75 @@
   <q-layout view="lHh Lpr lFf">
     <q-header class="custom-header">
       <q-toolbar class="text-black">
-      <q-toolbar-title class="h1">Cloud Estate</q-toolbar-title>
-      <img src="../assets/croatia.png" alt="Button Image" style="width: 24px; height: 24px; margin-top: 10px; margin-right: 15px;" />
-      <q-btn flat round dense icon="account_circle" style="margin-top: 10px;" />
-    </q-toolbar>
+        <q-btn
+          flat
+          dense
+          class="h1 text-black no-uppercase"
+          @click="navigateTo('/')"
+        >
+          Cloud Estate
+        </q-btn>
+        <q-space />
+        <img
+          src="../assets/croatia.png"
+          alt="Button Image"
+          style="width: 24px; height: 24px; margin-top: 10px; margin-right: 15px;"
+        />
+        <div class="q-pa-md">
+          <q-btn-dropdown flat round dense icon="account_circle" style="margin-top: 10px;">
+            <q-list>
+              <!-- Stavka za Prijava -->
+              <q-item clickable v-close-popup @click="navigateTo('/login')">
+                <q-item-section>
+                  <q-item-label>Prijava</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <!-- Stavka za Registracija -->
+              <q-item clickable v-close-popup @click="navigateTo('/registracija')">
+                <q-item-section>
+                  <q-item-label>Registracija</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </div>
+      </q-toolbar>
     </q-header>
+
     <!-- Footer s gumbovima -->
     <q-footer class="custom-toolbar">
       <q-toolbar class="q-pa-none">
         <div class="row full-width justify-around items-center">
-          <!-- Hamburger menu gumb -->
+          <!-- Gumb za "O nama" -->
           <div class="button-container">
             <q-btn
               flat
               dense
               round
-              icon="menu"
-              aria-label="Menu"
-              @click="toggleLeftDrawer"
+              icon="info"
+              aria-label="O nama"
               class="icon-button"
+              to="/o_nama"
             />
-            <div class="button-text">Menu</div>
+            <div class="button-text">O nama</div>
           </div>
 
-          <!-- Drugi gumb -->
+          <!-- Gumb za kupnju nekretnina -->
           <div class="button-container">
             <q-btn
               flat
               dense
               round
               icon="home_work"
-              aria-label="Favorites"
+              aria-label="Buy"
               class="icon-button"
+              to="/kupnja_nekretnina"
             />
             <div class="button-text">Buy</div>
           </div>
 
-          <!-- Treći gumb -->
+          <!-- Gumb za mapu -->
           <div class="button-container">
             <q-btn
               flat
@@ -47,24 +79,26 @@
               icon="pin_drop"
               aria-label="Map"
               class="icon-map"
+              to="/mapa_nekretnina"
             />
             <div class="button-text-map">Map</div>
           </div>
 
-          <!-- Četvrti gumb -->
+          <!-- Gumb za najam nekretnina -->
           <div class="button-container">
             <q-btn
               flat
               dense
               round
               icon="apartment"
-              aria-label="Inbox"
+              aria-label="Rent"
               class="icon-button"
+              to="/najam_nekretnina"
             />
             <div class="button-text">Rent</div>
           </div>
 
-          <!-- Peti gumb -->
+          <!-- Gumb za agencije -->
           <div class="button-container">
             <q-btn
               flat
@@ -73,23 +107,13 @@
               icon="real_estate_agent"
               aria-label="Agencies"
               class="icon-button"
+              to="/popis_agencija"
             />
             <div class="button-text">Agencies</div>
           </div>
         </div>
       </q-toolbar>
     </q-footer>
-
-    <!-- Drawer sa strane -->
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
 
     <!-- Sadržaj stranice -->
     <q-page-container>
@@ -103,7 +127,7 @@
   font-family: "Roboto", serif;
   font-weight: 800;
   font-size: 1.5rem;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 .custom-header {
   height: 60px; /* Visina footer-a */
@@ -163,67 +187,16 @@
 </style>
 
 <script setup>
-import { ref } from "vue";
-import EssentialLink from "components/EssentialLink.vue";
+import { useRouter } from "vue-router";
 
 defineOptions({
   name: "MainLayout",
 });
 
-const linksList = [
-  {
-    title: "Naslovnica",
-    caption: "Početna stranica",
-    icon: "house",
-    link: "#/",
-  },
-  {
-    title: "Kupi nekretninu",
-    caption: "Dostupne nekretnine za kupnju",
-    icon: "home_work",
-    link: "#/kupnja_nekretnina",
-  },
-  {
-    title: "Iznajmi nekretninu",
-    caption: "Nekretnine za najam",
-    icon: "apartment",
-    link: "#/najam_nekretnina",
-  },
-  {
-    title: "Mapa",
-    caption: "Mapa s dostupnim nekretninama",
-    icon: "map",
-    link: "#/mapa_nekretnina",
-  },
-  {
-    title: "Agencije",
-    caption: "Lista agencija koje surađuju s nama",
-    icon: "real_estate_agent",
-    link: "#/popis_agencija",
-  },
-  {
-    title: "Prijava",
-    caption: "Prijava postojećih korisnika",
-    icon: "login",
-    link: "#/login",
-  },
-  {
-    title: "Registracija",
-    caption: "Registracija novih korisnika",
-    icon: "how_to_reg",
-    link: "#/registracija",
-  },
-  {
-    title: "O nama",
-    caption: "Opis naše vizije i misije",
-    icon: "info",
-    link: "#/o_nama",
-  },
-];
+const router = useRouter(); // Inicijaliziraj router
 
-const leftDrawerOpen = ref(false);
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
+// Funkcija za navigaciju
+function navigateTo(route) {
+  router.push(route);
 }
 </script>
