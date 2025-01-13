@@ -134,7 +134,7 @@ export default {
 
 <style scoped>
 #map-container {
-  height: 100vh;
+  height: 100rem;
   width: 100%;
 }
 </style>
