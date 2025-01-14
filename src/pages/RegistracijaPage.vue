@@ -37,7 +37,7 @@
 
 
   <div>
-    <q-btn label="Submit" type="submit" color="primary" @click="insertKorisnik()"/>
+    <q-btn label="Submit" type="submit" color="primary" @click="handleSubmit" />
     <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
   </div>
 </q-form>
@@ -47,47 +47,61 @@
 </template>
 
 <script>
-//import { useQuasar } from 'quasar'
-import { ref } from 'vue'
-import axios from 'axios'
+import { ref } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 export default {
-  setup () {
-    //const $q = useQuasar()
-    const ime = ref(null)
-    const prezime = ref(null)
-    const email = ref(null)
-    const telefon = ref(null)
-    const lozinka = ref(null)
+  setup() {
+    const ime = ref(null);
+    const prezime = ref(null);
+    const email = ref(null);
+    const telefon = ref(null);
+    const lozinka = ref(null);
+    const router = useRouter(); // Inicijaliziraj router
 
+    const insertKorisnik = async () => {
+      const formData = {
+        ime: ime.value,
+        prezime: prezime.value,
+        email: email.value,
+        telefon: telefon.value,
+        lozinka: lozinka.value,
+      };
+      try {
+        const result = await axios.post('http://localhost:3000/api/registracija_korisnika', formData);
+        console.log(result.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const navigateTo = (route) => {
+      router.push(route);
+    };
+
+    const handleSubmit = () => {
+      // Provjera da li su sva polja popunjena
+      if (!ime.value || !prezime.value || !email.value || !telefon.value || !lozinka.value) {
+        alert('Molimo popunite sva polja prije potvrde.');
+        return;
+      }
+
+      // Ako su sva polja popunjena, izvršavaju se funkcije
+      insertKorisnik();
+      navigateTo('/login');
+    };
 
     return {
       ime,
       prezime,
       email,
       telefon,
-      lozinka
-    }
+      lozinka,
+      handleSubmit,
+    };
   },
-  methods: {
-    async insertKorisnik() {
-      const formData = {
-        "ime": this.ime,
-        "prezime": this.prezime,
-        "email": this.email,
-        "telefon": this.telefon,
-        "lozinka": this.lozinka
-      }
-      await axios.post('http://192.168.1.37:3000/api/registracija_korisnika', formData)
-        .then(result => {
-          console.log(result.data)
-        })
-        .catch(error => {
-          console.error(error)
-        })
-    },
-  }
-}
-
-
+};
 </script>
+
+

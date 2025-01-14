@@ -2,7 +2,7 @@
   <q-page>
     <!-- Banner slika -->
     <q-img
-      src="../assets/pozadina.jpg"
+      src="../../assets/pozadina.jpg"
       alt="slika"
       class="banner-slika"
     />

@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md row items-start q-gutter-md">
-    <header class="h2">Nekretnine za najam</header>
+    <header class="h2">Favoriti</header>
 
     <!-- Pretraga -->
     <q-input class="search-bar" rounded outlined v-model="text">
@@ -9,7 +9,7 @@
       </template>
     </q-input>
 
-     <div class="q-pa-md">
+    <div class="q-pa-md">
       <!-- Filter za vrstu nekretnine -->
       <q-btn-dropdown class="filter-button" label="Vrsta">
         <q-list>
@@ -50,7 +50,6 @@
                   flat
                   toggle
                   @click="toggleRooms(sobe)"
-                  :active="selectedRooms.includes(sobe)"
                   :class="{ 'active-filter': selectedRooms.includes(sobe) }"
                 />
               </q-btn-group>
@@ -62,13 +61,12 @@
               <div class="text-subtitle1">Broj kupaonica</div>
               <q-btn-group spread>
                 <q-btn
-                  v-for="kupaone in [1, 2, 3, 4,5]"
+                  v-for="kupaone in [1, 2, 3, 4, 5]"
                   :key="kupaone"
                   :label="kupaone"
                   flat
                   toggle
                   @click="toggleBathrooms(kupaone)"
-                  :active="selectedBathrooms.includes(kupaone)"
                   :class="{ 'active-filter': selectedBathrooms.includes(kupaone) }"
                 />
               </q-btn-group>
@@ -98,7 +96,6 @@
             </q-item-section>
           </q-item>
 
-          <!-- New Price Filter -->
           <q-item>
             <q-item-section>
               <div class="text-subtitle1">Cijena</div>
@@ -125,7 +122,6 @@
       </q-btn-dropdown>
     </div>
 
-
     <!-- Prikaz nekretnina -->
     <q-card
       v-for="(nekretnina, index) in filtriraneNekretnine"
@@ -148,7 +144,7 @@
       </q-carousel>
 
       <q-card-section>
-        <div class="text-overline text-blue-8">
+        <div class="text-overline text-primary">
           {{ nekretnina.Tip_nekretnine }}
         </div>
         <div class="text-h5 q-mt-sm q-mb-xs">
@@ -200,6 +196,10 @@
         </div>
       </q-card-actions>
     </q-card>
+
+
+
+
     <!-- Dijalog za prikaz kontaktiranja -->
     <q-dialog v-model="dialogOpen">
     <q-card>
@@ -277,19 +277,20 @@ export default {
     const telefon = ref(null)
     const poruka = ref(null)
     return {
-      text: "", // Za pretragu
-      nekretnine: [], // Spremanje podataka o nekretninama
-      currentSlide: [], // Trenutno prikazani slajd za svaku nekretninu
+      text: "",
+      nekretnine: [],
+      currentSlide: [],
       currentDialogSlide: 1, // Trenutni slajd za dijalog
-      selectedTypes: [], // Tipovi nekretnina za filtriranje
-      selectedRooms: [], // Filter za broj soba
-      selectedBathrooms: [], // Filter za broj kupaonica
-      minArea: null, // Minimalna kvadratura
-      maxArea: null, // Maksimalna kvadratura
-      minPrice: null, // Minimalna cijena
-      maxPrice: null, // Maksimalna cijena
+      selectedTypes: [],
+      selectedRooms: [],
+      selectedBathrooms: [],
+      minArea: null,
+      maxArea: null,
+      minPrice: null,
+      maxPrice: null,
       dialogOpen: false, // Da li je dijalog otvoren
       selectedNekretnina: null, // Odabrana nekretnina za prikaz u dijalogu
+      messageSent: false, // Status da li je poruka poslana
       ime,
       email,
       telefon,
@@ -303,16 +304,13 @@ export default {
     async fetchNekretnine() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/nekretnine/najam"
+          "http://localhost:3000/api/nekretnine/kupnja"
         );
         this.nekretnine = response.data;
-        this.currentSlide = this.nekretnine.map(() => 1); // Inicijaliziraj svaki slajd na 1
+        this.currentSlide = this.nekretnine.map(() => 1);
       } catch (error) {
         console.error("Greška prilikom dohvaćanja podataka:", error);
       }
-    },
-    handleImageError(event) {
-      event.target.src = "https://via.placeholder.com/350x200?text=No+Image";
     },
     toggleType(type) {
       const index = this.selectedTypes.indexOf(type);
@@ -322,25 +320,24 @@ export default {
         this.selectedTypes.splice(index, 1);
       }
     },
-    toggleRooms(room) {
-      const index = this.selectedRooms.indexOf(room);
+    toggleRooms(roomCount) {
+      const index = this.selectedRooms.indexOf(roomCount);
       if (index === -1) {
-        this.selectedRooms.push(room);
+        this.selectedRooms.push(roomCount);
       } else {
         this.selectedRooms.splice(index, 1);
       }
     },
-    toggleBathrooms(bathroom) {
-      const index = this.selectedBathrooms.indexOf(bathroom);
+    toggleBathrooms(bathroomCount) {
+      const index = this.selectedBathrooms.indexOf(bathroomCount);
       if (index === -1) {
-        this.selectedBathrooms.push(bathroom);
+        this.selectedBathrooms.push(bathroomCount);
       } else {
         this.selectedBathrooms.splice(index, 1);
       }
     },
     openDialog(nekretnina) {
       this.selectedNekretnina = nekretnina
-      this.currentDialogSlide = 1 // Postavite početni slajd na 1
       this.dialogOpen = true
     },
     async insertKontakt() {
@@ -364,7 +361,6 @@ export default {
   }
   },
   computed: {
-    // Filtriranje nekretnina prema svim filterima
     filtriraneNekretnine() {
       return this.nekretnine.filter((nekretnina) => {
         const matchesText = nekretnina.Adresa_nekretnine

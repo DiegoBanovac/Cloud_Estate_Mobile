@@ -42,37 +42,56 @@
 
 <script>
 import axios from "axios"; // Uvoz axios za slanje POST zahtjeva
+import { useRouter } from "vue-router"; // Uvoz Vue Router-a
 
 export default {
+  setup() {
+    const router = useRouter(); // Inicijaliziraj router
+
+    return {
+      router
+    };
+  },
   data() {
     return {
       user: {
-        email: '',  // Polje za email
-        password: ''  // Polje za lozinku
+        email: '', // Polje za email
+        password: '' // Polje za lozinku
       }
     };
   },
-methods: {
+  methods: {
     // Metoda za podnošenje forme
     submitForm() {
-      if (this.isFormValid()) {
-        axios.post('http://192.168.1.37:3000/api/login', {
-          email: this.user.email,
-          lozinka: this.user.password
-        })
-        .then(response => {
-          console.log(response.data.message);
-          alert('Prijava uspješna!');  // Prikazuje obavijest korisniku
-          this.resetForm();
-        })
-        .catch(error => {
-          console.error("Greška prilikom prijave:", error);
-          alert('Neispravan email ili lozinka.');  // Prikazuje grešku
-        });
-      } else {
-        alert('Molimo ispunite sve obavezne podatke.');  // Obavijest ako forma nije ispunjena
-      }
-    },
+  if (this.isFormValid()) {
+    axios
+      .post("http://localhost:3000/api/login", {
+        email: this.user.email,
+        lozinka: this.user.password,
+      })
+      .then((response) => {
+        const { message, korisnik } = response.data;
+        console.log(message);
+
+        if (korisnik && korisnik.Ime_korisnika) {
+          // Spremanje imena korisnika u localStorage
+          localStorage.setItem("Ime_korisnika", korisnik.Ime_korisnika);
+          localStorage.setItem("Sifra_korisnika", korisnik.Sifra_korisnika);
+        }
+
+        alert("Prijava uspješna!");
+        this.router.push("/korisnik");
+      })
+      .catch((error) => {
+        console.error("Greška prilikom prijave:", error);
+        alert("Neispravan email ili lozinka.");
+      });
+  } else {
+    alert("Molimo ispunite sve obavezne podatke.");
+  }
+},
+
+
 
     // Provjera validnosti forme
     isFormValid() {
@@ -81,8 +100,8 @@ methods: {
 
     // Resetiranje forme
     resetForm() {
-      this.user.email = '';
-      this.user.password = '';
+      this.user.email = "";
+      this.user.password = "";
     }
   }
 };

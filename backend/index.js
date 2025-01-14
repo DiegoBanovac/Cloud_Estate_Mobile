@@ -108,7 +108,7 @@ app.post("/api/login", async (req, res) => {
     }
 
     const query =
-      "SELECT Ime_korisnika, Email_korisnika FROM Korisnik WHERE Email_korisnika = ? AND Lozinka_korisnika = ?";
+      "SELECT Sifra_korisnika, Ime_korisnika, Email_korisnika FROM Korisnik WHERE Email_korisnika = ? AND Lozinka_korisnika = ?";
     const results = await executeQuery(query, [email, lozinka]);
 
     if (results.length > 0) {

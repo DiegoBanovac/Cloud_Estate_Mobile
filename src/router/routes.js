@@ -12,13 +12,20 @@ const routes = [
       { path: '/mapa_nekretnina', component: () => import('pages/MapaNekretninaPage.vue') },
       { path: "/o_nama", component: () => import("pages/ONamaPage.vue") }
     ]},
+    {
+      path: "/korisnik",
+      component: () => import("layouts/KorisnikLayout.vue"),
+      children: [
+        { path: '', component: () => import('pages/korisnik/KorisnikIndexPage.vue') },
+        { path: '/korisnik/kupnja_nekretnina', component: () => import('pages/korisnik/KorisnikKupnjaNekretninaPage.vue') },
+        { path: '/korisnik/najam_nekretnina', component: () => import('pages/korisnik/KorisnikNajamNekretninaPage.vue') },
+        { path: "/korisnik/popis_agencija",component: () => import("pages/korisnik/KorisnikPopisAgencijaPage.vue"),},
+        { path: '/korisnik/mapa_nekretnina', component: () => import('pages/korisnik/KorisnikMapaNekretninaPage.vue') },
+        { path: "/korisnik/o_nama", component: () => import("pages/korisnik/KorisnikONamaPage.vue") },
+        { path: "/korisnik/favoriti", component: () => import("pages/korisnik/FavoritiPage.vue") }
+      ]}
 
-  // Always leave this as last one,
-  // but you can also remove it
-  {
-    path: "/:catchAll(.*)*",
-    component: () => import("pages/ErrorNotFound.vue"),
-  },
+
 ];
 
 export default routes;
