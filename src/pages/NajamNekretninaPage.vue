@@ -175,20 +175,7 @@
         <span class="price">€{{ nekretnina.Cijena_nekretnine }}</span>
         <div class="button-group">
           <q-btn
-            flat
-            label="Kupi"
-            style="
-              background-color: #007bff;
-              color: white;
-              border-radius: 30px;
-              padding: 0.5rem 1.5rem;
-              font-weight: bold;
-              margin-right: 0.5rem;
-            "
-          />
-          <q-btn
-            flat
-            label="Podijeli"
+                flat
             style="
               background-color: white;
               color: black;
@@ -196,23 +183,111 @@
               border: 1px solid #e0e0e0;
               padding: 0.5rem 1.5rem;
               font-weight: 400;
+              margin-right: 0.5rem;
+            "
+          >
+          <q-icon name="favorite_border" size="sm" style="color: lightgrey;" />
+          </q-btn>
+          <q-btn
+            flat
+            label="Kontaktiraj"
+            @click="openDialog(nekretnina)"
+            style="
+              background-color: #007bff;
+              color: white;
+              border-radius: 30px;
+              padding: 0.5rem 1.5rem;
+              font-weight: bold;
+
             "
           />
+
+
+
         </div>
       </q-card-actions>
     </q-card>
+    <!-- Dijalog za prikaz kontaktiranja -->
+    <q-dialog v-model="dialogOpen">
+    <q-card>
+      <q-card-section>
+        <header class="h2">Kontaktiraj agenta</header>
+        <div style="display: flex; justify-content: flex-end;">
+          <q-btn
+            flat
+            round
+            dense
+            icon="close"
+            @click="dialogOpen = false"
+            style="color: #e0e0e0; font-size: 1.2rem; margin-top: 3px;"
+          />
+        </div>
+      </q-card-section>
+
+      <q-form>
+        <div class="q-gutter-md">
+          <q-input
+            filled
+            v-model="ime"
+            label="Ime"
+            style="margin-left: 2rem; margin-right: 1rem;"
+            />
+          <q-input
+            filled
+            v-model="email"
+            label="E-mail"
+            style="margin-left: 2rem; margin-right: 1rem;"
+            />
+          <q-input
+            filled
+            v-model="telefon"
+            label="Telefon"
+            style="margin-left: 2rem; margin-right: 1rem;"
+            />
+          <q-input
+            v-model="poruka"
+            filled
+            type="textarea"
+            label="Poruka"
+            style="margin-left: 2rem; margin-right: 1rem;"
+            />
+        <div>
+          <!-- Gumb za slanje -->
+          <q-btn
+            flat
+            label="Pošalji"
+            @click="insertKontakt()"
+            style="
+              margin-top: 25rem;
+              background-color: #007bff;
+              color: white;
+              border-radius: 30px;
+              padding: 0.5rem 1.5rem;
+              font-weight: bold;"
+          />
+          </div>
+        </div>
+      </q-form>
+  </q-card>
+</q-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { ref } from 'vue'
 
 export default {
   data() {
+    const ime = ref(null)
+    const email = ref(null)
+    const telefon = ref(null)
+    const poruka = ref(null)
     return {
       text: "", // Za pretragu
       nekretnine: [], // Spremanje podataka o nekretninama
       currentSlide: [], // Trenutno prikazani slajd za svaku nekretninu
+      currentDialogSlide: 1, // Trenutni slajd za dijalog
       selectedTypes: [], // Tipovi nekretnina za filtriranje
       selectedRooms: [], // Filter za broj soba
       selectedBathrooms: [], // Filter za broj kupaonica
@@ -220,6 +295,12 @@ export default {
       maxArea: null, // Maksimalna kvadratura
       minPrice: null, // Minimalna cijena
       maxPrice: null, // Maksimalna cijena
+      dialogOpen: false, // Da li je dijalog otvoren
+      selectedNekretnina: null, // Odabrana nekretnina za prikaz u dijalogu
+      ime,
+      email,
+      telefon,
+      poruka
     };
   },
   mounted() {
@@ -263,6 +344,27 @@ export default {
       } else {
         this.selectedBathrooms.splice(index, 1);
       }
+    },
+    openDialog(nekretnina) {
+      this.selectedNekretnina = nekretnina
+      this.currentDialogSlide = 1 // Postavite početni slajd na 1
+      this.dialogOpen = true
+    },
+    async insertKontakt() {
+      const formData = {
+        "ime": this.ime,
+        "email": this.email,
+        "telefon": this.telefon,
+        "poruka": this.poruka,
+        "agencija": this.selectedNekretnina.Email_agencije
+      }
+      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
+        .then(result => {
+          console.log(result.data)
+        })
+        .catch(error => {
+          console.error(error)
+        })
     },
   },
   computed: {
@@ -317,12 +419,11 @@ export default {
   border: 1px solid #e0e0e0
   padding: 0.5rem 1.5rem
   font-weight: 400
-
 .h2
   font-family: "Roboto", serif
   font-weight: 500
   font-size: 1.5rem
-  color: rgb(45, 144, 226)
+  color: black
 
 .info-row
   display: flex
@@ -361,4 +462,21 @@ q-item[active]
   background-color: rgba(0, 123, 255, 0.1)
   color: #007bff
   border-radius: 4px
+
+/* Stil za gumb za zatvaranje */
+.q-dialog .q-btn
+  position: absolute
+  top: 0.5rem
+  right: 0.5rem
+  z-index: 10
+
+
+/* Stil za plavi okvir pop-up prozora */
+.q-dialog .q-card
+  width: 20rem
+  height: 33rem
+
+
+.q-form
+  width:20rem
 </style>

@@ -1,23 +1,18 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header class="custom-header">
-      <q-toolbar class="text-black">
+      <q-toolbar class="text-black items-center">
         <q-btn
           flat
           dense
-          class="h1 text-black no-uppercase"
+          class="h1 text-primary no-uppercase"
           @click="navigateTo('/')"
         >
           Cloud Estate
         </q-btn>
         <q-space />
-        <img
-          src="../assets/croatia.png"
-          alt="Button Image"
-          style="width: 24px; height: 24px; margin-top: 10px; margin-right: 15px;"
-        />
         <div class="q-pa-md">
-          <q-btn-dropdown flat round dense icon="account_circle" style="margin-top: 10px;">
+          <q-btn-dropdown flat round dense icon="account_circle">
             <q-list>
               <!-- Stavka za Prijava -->
               <q-item clickable v-close-popup @click="navigateTo('/login')">
@@ -50,10 +45,12 @@
               round
               icon="info"
               aria-label="O nama"
-              class="icon-button"
+              :class="{'icon-map': isActive('/o_nama'), 'icon-button': !isActive('/o_nama')}"
               to="/o_nama"
             />
-            <div class="button-text">O nama</div>
+            <div
+              :class="{'button-text-map': isActive('/o_nama'), 'button-text': !isActive('/o_nama')}"
+            >O nama</div>
           </div>
 
           <!-- Gumb za kupnju nekretnina -->
@@ -64,10 +61,12 @@
               round
               icon="home_work"
               aria-label="Buy"
-              class="icon-button"
+              :class="{'icon-map': isActive('/kupnja_nekretnina'), 'icon-button': !isActive('/kupnja_nekretnina')}"
               to="/kupnja_nekretnina"
             />
-            <div class="button-text">Buy</div>
+            <div
+              :class="{'button-text-map': isActive('/kupnja_nekretnina'), 'button-text': !isActive('/kupnja_nekretnina')}"
+            >Kupnja</div>
           </div>
 
           <!-- Gumb za mapu -->
@@ -78,10 +77,12 @@
               round
               icon="pin_drop"
               aria-label="Map"
-              class="icon-map"
+              :class="{'icon-map': isActive('/mapa_nekretnina'), 'icon-button': !isActive('/mapa_nekretnina')}"
               to="/mapa_nekretnina"
             />
-            <div class="button-text-map">Map</div>
+            <div
+              :class="{'button-text-map': isActive('/mapa_nekretnina'), 'button-text': !isActive('/mapa_nekretnina')}"
+            >Mapa</div>
           </div>
 
           <!-- Gumb za najam nekretnina -->
@@ -92,10 +93,12 @@
               round
               icon="apartment"
               aria-label="Rent"
-              class="icon-button"
+              :class="{'icon-map': isActive('/najam_nekretnina'), 'icon-button': !isActive('/najam_nekretnina')}"
               to="/najam_nekretnina"
             />
-            <div class="button-text">Rent</div>
+            <div
+              :class="{'button-text-map': isActive('/najam_nekretnina'), 'button-text': !isActive('/najam_nekretnina')}"
+            >Najam</div>
           </div>
 
           <!-- Gumb za agencije -->
@@ -106,10 +109,12 @@
               round
               icon="real_estate_agent"
               aria-label="Agencies"
-              class="icon-button"
+              :class="{'icon-map': isActive('/popis_agencija'), 'icon-button': !isActive('/popis_agencija')}"
               to="/popis_agencija"
             />
-            <div class="button-text">Agencies</div>
+            <div
+              :class="{'button-text-map': isActive('/popis_agencija'), 'button-text': !isActive('/popis_agencija')}"
+            >Agencije</div>
           </div>
         </div>
       </q-toolbar>
@@ -130,12 +135,13 @@
   margin-top: 6px;
 }
 .custom-header {
-  height: 60px; /* Visina footer-a */
+  height: 60px; /* Visina header-a */
   background-color: #ffffff;
   border-radius: 15px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   padding-left: 2px;
-
+  display: flex;
+  align-items: center;
 }
 .custom-toolbar {
   height: 60px; /* Visina footer-a */
@@ -187,16 +193,22 @@
 </style>
 
 <script setup>
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 defineOptions({
   name: "MainLayout",
 });
 
 const router = useRouter(); // Inicijaliziraj router
+const route = useRoute();
 
 // Funkcija za navigaciju
 function navigateTo(route) {
   router.push(route);
+}
+
+// Funkcija za provjeru trenutne rute
+function isActive(path) {
+  return route.path === path;
 }
 </script>

@@ -79,7 +79,10 @@ this.fetchAgencije();
   width: 100%
 
 .h1
+  font-family: "Roboto", serif
   font-weight: 500
   font-size: 1.5rem
+  color: black
+  margin-top: 1rem
 
 </style>
