@@ -7,141 +7,147 @@ const app = express();
 const port = 3000;
 
 app.use(cors());
-// Parser za JSON podatke
 app.use(bodyParser.json());
-
-// Parser za podatke iz formi
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-const connection = mysql.createConnection({
-    host: 'student.veleri.hr',
-    user: 'pmocibob',
-    password: '11',
-    database: 'pmocibob'
-  });
- 
-app.use(express.urlencoded({ extended: true }));
- 
-connection.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
-  });
-
-
-app.get("/api/nekretnine", (request, response) => {
-    
-    connection.query("SELECT * FROM Nekretnina", (error, results) => {
-      if (error) throw error;
-      response.send(results);
-    });
-/*
-    request - slanje zahtjeva s klijentske strane
-    response - slanje odgovora sa serverske strane
-
-    npm install -g nodemon
-*/
-    //response.send("popis knjiga");
-});
-app.get("/api/nekretnine/kupnja", (request, response) => {
-    
-  connection.query("SELECT * FROM Nekretnina_kupnja", (error, results) => {
-    if (error) throw error;
-    response.send(results);
-  });
-/*
-  request - slanje zahtjeva s klijentske strane
-  response - slanje odgovora sa serverske strane
-
-  npm install -g nodemon
-*/
-  //response.send("popis knjiga");
-});
-app.get("/api/nekretnine/najam", (request, response) => {
-    
-  connection.query("SELECT * FROM Nekretnina_najam", (error, results) => {
-    if (error) throw error;
-    response.send(results);
-  });
-/*
-  request - slanje zahtjeva s klijentske strane
-  response - slanje odgovora sa serverske strane
-
-  npm install -g nodemon
-*/
-  //response.send("popis knjiga");
+// Use a connection pool for better connection management
+const pool = mysql.createPool({
+  connectionLimit: 10,
+  host: "student.veleri.hr",
+  user: "pmocibob",
+  password: "11",
+  database: "pmocibob",
 });
 
-app.get("/api/nekretnine/:id", (request, response) => {
-    const id = request.params.id;
-    connection.query("SELECT * FROM Nekretnina WHERE id = ?", id, (error, results) => {
-        if (error) throw error;
-        response.send(results);
-      });
-    //response.send("jedna knjiga "+id);
-});
-
-app.post("/api/Opis_nekretnine", (request, response) => {
-    const data = request.body;
-    opis = [[data.Cijena_nekretnine, data.Kvadratura_nekretnine, data.Kvadratura_nekretnine]]
-
-    connection.query("INSERT INTO Nekretnina (Cijena_nekretnine, Kvadratura_nekretnine, Kvadratura_nekretnine) VALUES ?", [rezervacija], (error, results) => {
-      if (error) throw error;
-      response.send(results);
-    });
-    
-    //response.send("Poslano "+data.id_knjiga);
-  });
-
-// Endpoint za dohvat podataka o agencijama
-app.get("/api/agencije", (request, response) => {
-  // SQL upit za dohvat podataka iz tablice Agencija
-  connection.query(
-    "SELECT Naziv_Agencije, Adresa_Agencije, Telefon_Agencije, Email_Agencije FROM Agencija",
-    (error, results) => {
-      if (error) throw error;
-      response.send(results);
-    }
-  );
-});
-//login
-app.post("/api/login", (request, response) => {
-  const { email, lozinka } = request.body;
-
-  if (!email || !lozinka) {
-    return response.status(400).send("Molimo unesite email i lozinku.");
-  }
-
-  connection.query(
-    "SELECT Ime_korisnika, Email_korisnika, Lozinka_korisnika FROM Korisnik WHERE Email_korisnika = ? AND Lozinka_korisnika = ?",
-    [email, lozinka],
-    (error, results) => {
+// Helper function to execute queries
+const executeQuery = (query, params = []) =>
+  new Promise((resolve, reject) => {
+    pool.query(query, params, (error, results) => {
       if (error) {
-        console.error(error);
-        return response.status(500).send("Greška u bazi podataka.");
-      }
-
-      if (results.length > 0) {
-        return response.status(200).send({
-          message: "Uspješan login!",
-          korisnik: results[0],
-        });
+        console.error("Database error:", error);
+        reject(error);
       } else {
-        return response.status(401).send("Neispravan email ili lozinka.");
+        resolve(results);
       }
-    }
-  );
+    });
+  });
+
+// Routes
+
+// Fetch all properties
+app.get("/api/nekretnine", async (req, res) => {
+  try {
+    const results = await executeQuery("SELECT * FROM Nekretnina");
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error fetching properties.");
+  }
 });
-app.post("/api/registracija_korisnika", (req,res) => {
-  const data = req.body;
-  korisnik=[[data.ime,data.prezime,data.email,data.telefon,data.lozinka]]
-  connection.query("INSERT INTO Korisnik (Ime_korisnika,Prezime_korisnika,Email_korisnika,Telefon_korisnika,Lozinka_korisnika) VALUES ?",
-    [korisnik], (error, results) => {
-      if (error) throw error;
-      res.send(results);
-    }
-  );
+
+// Fetch properties for purchase
+app.get("/api/nekretnine/kupnja", async (req, res) => {
+  try {
+    const results = await executeQuery("SELECT * FROM Nekretnina_kupnja");
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error fetching purchase properties.");
+  }
 });
-  app.listen(port, () => {
-    console.log("Server running at port: " + port);
+
+// Fetch properties for rent
+app.get("/api/nekretnine/najam", async (req, res) => {
+  try {
+    const results = await executeQuery("SELECT * FROM Nekretnina_najam");
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error fetching rental properties.");
+  }
+});
+
+// Fetch property by ID
+app.get("/api/nekretnine/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const results = await executeQuery("SELECT * FROM Nekretnina WHERE id = ?", [id]);
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error fetching property by ID.");
+  }
+});
+
+// Add a new property
+app.post("/api/Opis_nekretnine", async (req, res) => {
+  try {
+    const { Cijena_nekretnine, Kvadratura_nekretnine } = req.body;
+    const query = "INSERT INTO Nekretnina (Cijena_nekretnine, Kvadratura_nekretnine) VALUES ?";
+    const values = [[Cijena_nekretnine, Kvadratura_nekretnine]];
+    const results = await executeQuery(query, [values]);
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error adding property.");
+  }
+});
+
+// Fetch agency details
+app.get("/api/agencije", async (req, res) => {
+  try {
+    const query = "SELECT Naziv_Agencije, Adresa_Agencije, Telefon_Agencije, Email_Agencije FROM Agencija";
+    const results = await executeQuery(query);
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error fetching agencies.");
+  }
+});
+
+// User login
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, lozinka } = req.body;
+    if (!email || !lozinka) {
+      return res.status(400).send("Molimo unesite email i lozinku.");
+    }
+
+    const query =
+      "SELECT Ime_korisnika, Email_korisnika FROM Korisnik WHERE Email_korisnika = ? AND Lozinka_korisnika = ?";
+    const results = await executeQuery(query, [email, lozinka]);
+
+    if (results.length > 0) {
+      res.status(200).send({ message: "Uspješan login!", korisnik: results[0] });
+    } else {
+      res.status(401).send("Neispravan email ili lozinka.");
+    }
+  } catch (error) {
+    res.status(500).send("Greška u bazi podataka.");
+  }
+});
+
+// User registration
+app.post("/api/registracija_korisnika", async (req, res) => {
+  try {
+    const { ime, prezime, email, telefon, lozinka } = req.body;
+    const query =
+      "INSERT INTO Korisnik (Ime_korisnika, Prezime_korisnika, Email_korisnika, Telefon_korisnika, Lozinka_korisnika) VALUES ?";
+    const values = [[ime, prezime, email, telefon, lozinka]];
+    const results = await executeQuery(query, [values]);
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error registering user.");
+  }
+});
+app.post("/api/kontaktiraj", async (req, res) => {
+  try {
+    const { ime, email, telefon, poruka, agencija } = req.body;
+    const query =
+      "INSERT INTO Kontakt (Ime_korisnika, Email_korisnika, Telefon_korisnika, Poruka, Email_agencije) VALUES ?";
+    const values = [[ime, email, telefon, poruka, agencija]];
+    const results = await executeQuery(query, [values]);
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error sending message.");
+  }
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server running at port: ${port}`);
 });
