@@ -146,6 +146,69 @@ app.post("/api/kontaktiraj", async (req, res) => {
     res.status(500).send("Error sending message.");
   }
 });
+app.post("/api/dodaj_favorit", async (req, res) => {
+  try {
+    const { Sifra_korisnika, Adresa_nekretnine, Kvadratura_nekretnine, Broj_soba, Broj_kupaonica, Cijena_nekretnine, Opis_nekretnine,Tip_nekretnine, Slika_nekretnine, Slika_nekretnine_2, Slika_nekretnine_3, Email_agencije } = req.body;
+    const query =
+      "INSERT INTO Favoriti (Sifra_korisnika, Adresa_nekretnine, Kvadratura_nekretnine,Broj_soba,Broj_kupaonica,Cijena_nekretnine,Opis_nekretnine, Tip_nekretnine, Slika_nekretnine, Slika_nekretnine_2, Slika_nekretnine_3, Email_agencije) VALUES ?";
+    const values = [[Sifra_korisnika, Adresa_nekretnine, Kvadratura_nekretnine, Broj_soba, Broj_kupaonica, Cijena_nekretnine, Opis_nekretnine,Tip_nekretnine, Slika_nekretnine, Slika_nekretnine_2, Slika_nekretnine_3, Email_agencije]];
+    const results = await executeQuery(query, [values]);
+    res.json(results);
+  } catch (error) {
+    res.status(500).send("Error sending message.");
+  }
+});
+app.post("/api/provjeri_favorit", async (req, res) => {
+  try {
+    const { Sifra_korisnika, Adresa_nekretnine } = req.body;
+    const query =
+      "SELECT * FROM Favoriti WHERE Sifra_korisnika = ? AND Adresa_nekretnine = ?";
+    const results = await executeQuery(query, [Sifra_korisnika, Adresa_nekretnine]);
+    res.json({ exists: results.length > 0 });
+  } catch (error) {
+    console.error("Greška prilikom provjere favorita:", error);
+    res.status(500).send("Došlo je do greške.");
+  }
+});
+
+app.get("/api/favoriti", async (req, res) => {
+  try {
+    const sifraKorisnika = req.query.sifraKorisnika;
+    if (!sifraKorisnika) {
+      return res.status(400).send("Sifra_korisnika is required");
+    }
+
+    const results = await executeQuery("SELECT * FROM Favoriti WHERE Sifra_korisnika = ?", [sifraKorisnika]);
+    res.json(results);
+  } catch (error) {
+    console.error("Error fetching rental properties:", error);
+    res.status(500).send("Error fetching rental properties.");
+  }
+});
+app.post("/api/izbrisi_favorit", async (req, res) => {
+  try {
+    const { Sifra_korisnika, Adresa_nekretnine } = req.body;
+
+    if (!Sifra_korisnika || !Adresa_nekretnine) {
+      return res.status(400).send("Sifra korisnika i adresa nekretnine su obavezni.");
+    }
+
+    const result = await executeQuery(
+      "DELETE FROM Favoriti WHERE Sifra_korisnika = ? AND Adresa_nekretnine = ?",
+      [Sifra_korisnika, Adresa_nekretnine]
+    );
+
+    if (result.affectedRows > 0) {
+      return res.json({ success: true });
+    } else {
+      return res.status(404).send("Nekretnina nije pronađena u favoritima.");
+    }
+  } catch (error) {
+    console.error("Greška prilikom brisanja iz favorita:", error);
+    res.status(500).send("Greška prilikom brisanja iz favorita.");
+  }
+});
+
 
 // Start server
 app.listen(port, () => {

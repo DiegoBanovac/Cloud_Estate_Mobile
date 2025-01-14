@@ -176,7 +176,7 @@
         <div class="button-group">
           <q-btn
                 flat
-                @click="triggerAlert"
+                @click="addFavorite(nekretnina)"
                 style="background-color: white; color: black; border-radius: 30px; border: 1px solid #e0e0e0; padding: 0.5rem 1.5rem; font-weight: 400; margin-right: 0.5rem;"
                 >
                 <q-icon name="favorite_border" size="sm" style="color: lightgrey;" />
@@ -268,8 +268,12 @@
 
 <script>
 import axios from "axios";
-import { ref } from 'vue'
-
+import { ref,onMounted } from 'vue'
+const sifraKorisnika = ref("");
+onMounted(() => {
+  sifraKorisnika.value = localStorage.getItem("Sifra_korisnika");
+  console.log("Sifra korisnika:", sifraKorisnika.value);
+});
 export default {
   data() {
     const ime = ref(null)
@@ -340,7 +344,6 @@ export default {
     },
     openDialog(nekretnina) {
       this.selectedNekretnina = nekretnina
-      this.currentDialogSlide = 1 // Postavite početni slajd na 1
       this.dialogOpen = true
     },
     async insertKontakt() {
@@ -359,10 +362,50 @@ export default {
           console.error(error)
         })
     },
-    triggerAlert() {
-    alert('Molimo prijavite se kako bi dodali nekretninu u favorite!');
+    async addFavorite(nekretnina) {
+  try {
+    const Sifra_korisnika = localStorage.getItem('Sifra_korisnika');
+    if (!Sifra_korisnika) {
+      alert("Niste prijavljeni. Molimo prijavite se.");
+      return;
+    }
+
+    const payload = {
+      Sifra_korisnika,
+      Adresa_nekretnine: nekretnina.Adresa_nekretnine,
+      Kvadratura_nekretnine: nekretnina.Kvadratura_nekretnine,
+      Broj_soba: nekretnina.Broj_soba,
+      Broj_kupaonica: nekretnina.Broj_kupaonica,
+      Cijena_nekretnine: nekretnina.Cijena_nekretnine,
+      Opis_nekretnine: nekretnina.Opis_nekretnine,
+      Tip_nekretnine: nekretnina.Tip_nekretnine,
+      Slika_nekretnine: nekretnina.Slika_nekretnine,
+      Slika_nekretnine_2: nekretnina.Slika_nekretnine_2,
+      Slika_nekretnine_3: nekretnina.Slika_nekretnine_3,
+      Email_agencije: nekretnina.Email_agencije,
+    };
+
+    // Provjera je li nekretnina već dodana
+    const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
+      Sifra_korisnika,
+      Adresa_nekretnine: nekretnina.Adresa_nekretnine,
+    });
+
+    if (checkResponse.data.exists) {
+      alert("Nekretnina se već nalazi u favoritima.");
+      return;
+    }
+
+    // Dodavanje u favorite
+    await axios.post("http://localhost:3000/api/dodaj_favorit", payload);
+    alert("Nekretnina je uspješno dodana u favorite!");
+  } catch (error) {
+    console.error("Greška prilikom dodavanja u favorite:", error);
+    alert("Došlo je do greške. Molimo pokušajte ponovo.");
   }
+}
   },
+
   computed: {
     // Filtriranje nekretnina prema svim filterima
     filtriraneNekretnine() {

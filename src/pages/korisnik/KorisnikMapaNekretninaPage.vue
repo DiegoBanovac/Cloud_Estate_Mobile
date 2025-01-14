@@ -191,19 +191,6 @@ export default {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
                   <span style="font-weight: bold; font-size: 16px; color: #007bff;">€${nekretnina.Cijena_nekretnine}</span>
                   <div>
-                    <button
-                        style="
-                          background-color: white;
-                          color: black;
-                          border-radius: 30px;
-                          border: 1px solid #e0e0e0;
-                          padding: 0.5rem 1.5rem;
-                          font-weight: 400;
-                          cursor: pointer;
-                        "
-                          onclick="alert('Molimo prijavite se kako bi dodali nekretninu u favorite!')"
-                        >
-                        <i class="material-icons" style="color: lightgrey;">favorite_border</i>
                       </button>
                     </div>
                     <button
