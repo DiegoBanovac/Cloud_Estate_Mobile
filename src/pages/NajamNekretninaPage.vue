@@ -303,7 +303,7 @@ export default {
     async fetchNekretnine() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/nekretnine/najam"
+          "https://cloud-estate-api.onrender.com/api/nekretnine/najam"
         );
         this.nekretnine = response.data;
         this.currentSlide = this.nekretnine.map(() => 1); // Inicijaliziraj svaki slajd na 1
@@ -351,7 +351,7 @@ export default {
         "poruka": this.poruka,
         "agencija": this.selectedNekretnina.Email_agencije
       }
-      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
+      await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData)
         .then(result => {
           console.log(result.data)
         })

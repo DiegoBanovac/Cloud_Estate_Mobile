@@ -53,7 +53,7 @@ this.fetchAgencije();
   methods: {
     async fetchAgencije() {
       try {
-        const response = await axios.get("http://localhost:3000/api/agencije");
+        const response = await axios.get("https://cloud-estate-api.onrender.com/api/agencije");
         this.agencije = response.data;
       } catch (error) {
         console.error("Greška prilikom dohvaćanja podataka:", error);

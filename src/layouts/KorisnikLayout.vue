@@ -11,7 +11,7 @@
           Cloud Estate
         </q-btn>
         <q-space />
-        <span v-if="imeKorisnika" class="q-mr-md">Dobrodošli, {{ imeKorisnika }}!</span>
+        <span v-if="imeKorisnika" class="ime">{{ imeKorisnika }}</span>
         <div class="q-pa-md">
           <q-btn-dropdown flat round dense icon="account_circle">
             <q-list>
@@ -62,11 +62,11 @@
               round
               icon="home_work"
               aria-label="Buy"
-              :class="{'icon-map': isActive('/kupnja_nekretnina'), 'icon-button': !isActive('/kupnja_nekretnina')}"
+              :class="{'icon-map': isActive('/korisnik/kupnja_nekretnina'), 'icon-button': !isActive('/korisnik/kupnja_nekretnina')}"
               to="/korisnik/kupnja_nekretnina"
             />
             <div
-              :class="{'button-text-map': isActive('/kupnja_nekretnina'), 'button-text': !isActive('/kupnja_nekretnina')}"
+              :class="{'button-text-map': isActive('/korisnik/kupnja_nekretnina'), 'button-text': !isActive('/korisnik/kupnja_nekretnina')}"
             >Kupnja</div>
           </div>
 
@@ -134,6 +134,11 @@
   font-weight: 800;
   font-size: 1.5rem;
   margin-top: 6px;
+}
+.ime {
+  font-family: "Roboto", serif;
+  font-weight: 400;
+
 }
 .custom-header {
   height: 60px; /* Visina header-a */
