@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <!-- Naslov -->
-    <header class="div-naslov h2 q-mb-md">Nekretnine za kupnju</header>
+    <header class="div-naslov h2 q-mb-md">Vaše nekretnine</header>
 
     <!-- Filteri i Search Bar u istom retku -->
 <!-- Filteri i Search Bar: responzivan layout -->
@@ -195,11 +195,11 @@
             <div class="button-group">
               <q-btn
                 flat
-                @click="addFavorite(nekretnina)"
                 style="background-color: white; color: black; border-radius: 30px; border: 1px solid #e0e0e0; padding: 0.5rem 1.5rem; font-weight: 400; margin-right: 0.5rem;"
-              >
-                <q-icon name="favorite_border" size="sm" style="color: lightgrey;" />
-              </q-btn>
+                @click="removeFavorite(nekretnina)"
+                >
+                <q-icon name="remove" size="sm" style="color: lightgrey;" />
+          </q-btn>
               <q-btn
                 flat
                 label="Kontaktiraj"
@@ -288,7 +288,13 @@
 
 <script>
 import axios from "axios";
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+
+const Email_agencije = ref("");
+onMounted(() => {
+  Email_agencije.value = localStorage.getItem("Email_agencije");
+  console.log("Email_agencije:", Email_agencije.value);
+});
 
 export default {
   data() {
@@ -323,8 +329,14 @@ export default {
   methods: {
     async fetchNekretnine() {
       try {
+        const Email_agencije = localStorage.getItem("Email_agencije");
+        if (!Email_agencije) {
+          alert("Niste prijavljeni. Molimo prijavite se.");
+          return;
+        }
+
         const response = await axios.get(
-          "http://localhost:3000/api/nekretnine/kupnja"
+          `http://localhost:3000/api/nekretnine_agencija?Email_agencije=${Email_agencije}`
         );
         this.nekretnine = response.data;
         this.currentSlide = this.nekretnine.map(() => 1);
@@ -368,14 +380,16 @@ export default {
         "poruka": this.poruka,
         "agencija": this.selectedNekretnina.Email_agencije
       }
-      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
+      await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData)
         .then(result => {
           console.log(result.data)
         })
         .catch(error => {
           console.error(error)
         })
-    },async addFavorite(nekretnina) {
+    },
+    // Metoda za uklanjanje iz favorita
+    async removeFavorite(nekretnina) {
   try {
     const Sifra_korisnika = localStorage.getItem('Sifra_korisnika');
     if (!Sifra_korisnika) {
@@ -386,34 +400,27 @@ export default {
     const payload = {
       Sifra_korisnika,
       Adresa_nekretnine: nekretnina.Adresa_nekretnine,
-      Kvadratura_nekretnine: nekretnina.Kvadratura_nekretnine,
-      Broj_soba: nekretnina.Broj_soba,
-      Broj_kupaonica: nekretnina.Broj_kupaonica,
-      Cijena_nekretnine: nekretnina.Cijena_nekretnine,
-      Opis_nekretnine: nekretnina.Opis_nekretnine,
-      Tip_nekretnine: nekretnina.Tip_nekretnine,
-      Slika_nekretnine: nekretnina.Slika_nekretnine,
-      Slika_nekretnine_2: nekretnina.Slika_nekretnine_2,
-      Slika_nekretnine_3: nekretnina.Slika_nekretnine_3,
-      Email_agencije: nekretnina.Email_agencije,
     };
 
-    // Provjera je li nekretnina već dodana
-    const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
+    // Provjera je li nekretnina uopće u favoritima
+    const checkResponse = await axios.post("https://cloud-estate-api.onrender.com/api/provjeri_favorit", {
       Sifra_korisnika,
       Adresa_nekretnine: nekretnina.Adresa_nekretnine,
     });
 
-    if (checkResponse.data.exists) {
-      alert("Nekretnina se već nalazi u favoritima.");
+    if (!checkResponse.data.exists) {
+      alert("Nekretnina nije u favoritima.");
       return;
     }
 
-    // Dodavanje u favorite
-    await axios.post("http://localhost:3000/api/dodaj_favorit", payload);
-    alert("Nekretnina je uspješno dodana u favorite!");
+    // Uklanjanje iz favorita
+    await axios.post("https://cloud-estate-api.onrender.com/api/izbrisi_favorit", payload);
+    alert("Nekretnina je uspješno uklonjena iz favorita!");
+
+    // Ponovno učitaj favorite kako bi se lista ažurirala
+    this.fetchFavoriti();
   } catch (error) {
-    console.error("Greška prilikom dodavanja u favorite:", error);
+    console.error("Greška prilikom uklanjanja iz favorita:", error);
     alert("Došlo je do greške. Molimo pokušajte ponovo.");
   }
 }

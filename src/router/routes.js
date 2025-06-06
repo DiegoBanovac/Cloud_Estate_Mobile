@@ -8,9 +8,10 @@ const routes = [
       { path: '/login', component: () => import('pages/LoginPage.vue') },
       { path: '/registracija', component: () => import('pages/RegistracijaPage.vue') },
       { path: '/najam_nekretnina', component: () => import('pages/NajamNekretninaPage.vue') },
-      {path: "/popis_agencija",component: () => import("pages/PopisAgencijaPage.vue"),},
+      { path: "/popis_agencija",component: () => import("pages/PopisAgencijaPage.vue"),},
       { path: '/mapa_nekretnina', component: () => import('pages/MapaNekretninaPage.vue') },
-      { path: "/o_nama", component: () => import("pages/ONamaPage.vue") }
+      { path: "/o_nama", component: () => import("pages/ONamaPage.vue") },
+      { path: "/login_agencija", component: () => import("pages/AgencijaLoginPage.vue") }
     ]},
     {
       path: "/korisnik",
@@ -23,6 +24,18 @@ const routes = [
         { path: '/korisnik/mapa_nekretnina', component: () => import('pages/korisnik/KorisnikMapaNekretninaPage.vue') },
         { path: "/korisnik/o_nama", component: () => import("pages/korisnik/KorisnikONamaPage.vue") },
         { path: "/korisnik/favoriti", component: () => import("pages/korisnik/FavoritiPage.vue") }
+      ]},
+      {
+        path: "/agencija",
+        component: () => import("layouts/AgencijaLayout.vue"),
+        children: [
+          { path: '', component: () => import('pages/agencija/AgencijaIndexPage.vue') },
+          { path: '/agencija/kupnja_nekretnina', component: () => import('pages/agencija/AgencijaKupnjaNekretninaPage.vue') },
+          { path: '/agencija/najam_nekretnina', component: () => import('pages/agencija/AgencijaNajamNekretninaPage.vue') },
+          { path: "/agencija/popis_agencija",component: () => import("pages/agencija/AgencijaPopisAgencijaPage.vue"),},
+          { path: '/agencija/mapa_nekretnina', component: () => import('pages/agencija/AgencijaMapaNekretninaPage.vue') },
+          { path: "/agencija/agencija_nekretnine", component: () => import("pages/agencija/AgencijaONamaPage.vue") },
+          { path: "/agencija/popis_nekretnina", component: () => import("pages/agencija/AgencijaNekretninaPage.vue") }
       ]}
 
 
