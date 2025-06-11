@@ -69,7 +69,7 @@ export default {
         lozinka: lozinka.value,
       };
       try {
-        const result = await axios.post('https://cloud-estate-api.onrender.com/api/registracija_korisnika', formData);
+        const result = await axios.post('http://localhost:3000/api/registracija_korisnika', formData);
         console.log(result.data);
       } catch (error) {
         console.error(error);

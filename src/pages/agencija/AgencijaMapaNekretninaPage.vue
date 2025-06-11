@@ -144,7 +144,7 @@ export default {
       }
     },
     fetchNekretnineKupnja() {
-      axios.get('https://cloud-estate-api.onrender.com/api/nekretnine/kupnja')
+      axios.get('http://localhost:3000/api/nekretnine/kupnja')
         .then(response => {
           this.nekretnineKupnja = response.data;
           this.initMap();
@@ -154,7 +154,7 @@ export default {
         });
     },
     fetchNekretnineNajam() {
-      axios.get('https://cloud-estate-api.onrender.com/api/nekretnine/najam')
+      axios.get('http://localhost:3000/api/nekretnine/najam')
         .then(response => {
           this.nekretnineNajam = response.data;
           this.initMap();
@@ -162,6 +162,9 @@ export default {
         .catch(error => {
           console.error('Greška prilikom dohvata podataka: ', error);
         });
+    },
+    getImagePath(filename, type) {
+      return new URL(`/src/assets/nekretnine/${type}/${filename}`, import.meta.url).href
     },
     geocodeAddress(address, map, nekretnina, AdvancedMarkerElement, PinElement, markerColor) {
       const geocoder = new google.maps.Geocoder();
@@ -183,8 +186,10 @@ export default {
           const infoWindowContent = `
             <div style="width: 300px; font-family: Arial, sans-serif;">
               <div style="text-align: center; margin-bottom: 1rem;">
-                <img src="${nekretnina.Slika_nekretnine}" alt="Nekretnina" style="width: 100%; height: auto; border-radius: 8px;" />
-              </div>
+              <img src="${this.getImagePath(nekretnina.Slika_nekretnine, nekretnina.tip === 'kupnja' ? 'kupnja' : 'najam')}"
+                   alt="Nekretnina"
+                   style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;" />
+            </div>
               <div style="font-size: 14px;">
                 <h4 style="margin: 0;">${nekretnina.Adresa_nekretnine}</h4>
                 <p style="margin: 4px 0; color: #666;">${nekretnina.Tip_nekretnine}</p>
@@ -250,7 +255,7 @@ export default {
         poruka: this.poruka,
         agencija: this.selectedNekretnina.Email_agencije,
       };
-      await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData)
+      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
         .then(result => {
           console.log(result.data);
         })

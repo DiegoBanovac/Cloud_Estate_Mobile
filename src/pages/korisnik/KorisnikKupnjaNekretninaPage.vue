@@ -159,9 +159,9 @@
             infinite
             style="height: 200px;"
           >
-            <q-carousel-slide :name="1" :img-src="nekretnina.Slika_nekretnine" />
-            <q-carousel-slide :name="2" :img-src="nekretnina.Slika_nekretnine_2" />
-            <q-carousel-slide :name="3" :img-src="nekretnina.Slika_nekretnine_3" />
+            <q-carousel-slide :name="1" :img-src="getImagePath(nekretnina.Slika_nekretnine, 'kupnja')" />
+            <q-carousel-slide :name="2" :img-src="getImagePath(nekretnina.Slika_nekretnine_2, 'kupnja')" />
+            <q-carousel-slide :name="3" :img-src="getImagePath(nekretnina.Slika_nekretnine_3, 'kupnja')" />
           </q-carousel>
 
           <!-- Info -->
@@ -332,6 +332,32 @@ export default {
         console.error("Greška prilikom dohvaćanja podataka:", error);
       }
     },
+    getImagePath(filename, type, nekretnina) { // Added nekretnina parameter
+      if (!filename) {
+        console.warn('getImagePath: Filename is missing. Cannot construct path.');
+        return '../../assets/placeholder.jpg'; // Ensure you have a placeholder image
+      }
+
+      let folderName = 'default'; // Default folder if no type is matched
+
+      // The 'type' parameter comes from Tip_nekretnine_2 alias in backend query
+      // which is 'kupnja' or 'najam'
+      if (type === 'kupnja' || type === 'najam') {
+        folderName = type;
+      } else if (nekretnina && nekretnina.Tip_nekretnine) {
+        // Fallback: If 'type' is not 'kupnja' or 'najam', try to infer from nekretnina.Tip_nekretnine
+        const propType = nekretnina.Tip_nekretnine;
+        if (propType === "Stan" || propType === "Kuća") {
+          folderName = "kupnja";
+        } else if (propType === "Najam stana" || propType === "Najam kuće") {
+          folderName = "najam";
+        }
+      }
+
+      const imageUrl = `http://localhost:3000/uploads/${folderName}/${filename}`;
+      console.log(`Attempting to load image from: ${imageUrl}`);
+      return imageUrl;
+    },
     toggleType(type) {
       const index = this.selectedTypes.indexOf(type);
       if (index === -1) {
@@ -396,6 +422,7 @@ export default {
       Slika_nekretnine_2: nekretnina.Slika_nekretnine_2,
       Slika_nekretnine_3: nekretnina.Slika_nekretnine_3,
       Email_agencije: nekretnina.Email_agencije,
+      Tip_nekretnine_2: 'Kupnja',
     };
 
     // Provjera je li nekretnina već dodana

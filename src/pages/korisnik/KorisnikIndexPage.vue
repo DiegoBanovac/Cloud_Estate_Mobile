@@ -176,7 +176,7 @@ export default {
   methods: {
     async fetchNekretnine() {
       try {
-        const response = await axios.get('https://cloud-estate-api.onrender.com/api/nekretnine')
+        const response = await axios.get('http://localhost:3000/api/nekretnine')
         this.nekretnine = response.data
         this.currentSlide = this.nekretnine.map(() => 1) // Inicijaliziraj svaki slajd na 1
       } catch (error) {
@@ -203,7 +203,7 @@ export default {
         "poruka": this.poruka,
         "agencija": this.selectedNekretnina.Email_agencije
       }
-      await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData)
+      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
         .then(result => {
           console.log(result.data)
         })

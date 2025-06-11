@@ -159,9 +159,9 @@
             infinite
             style="height: 200px;"
           >
-            <q-carousel-slide :name="1" :img-src="nekretnina.Slika_nekretnine" />
-            <q-carousel-slide :name="2" :img-src="nekretnina.Slika_nekretnine_2" />
-            <q-carousel-slide :name="3" :img-src="nekretnina.Slika_nekretnine_3" />
+            <q-carousel-slide :name="1" :img-src="getImagePath(nekretnina.Slika_nekretnine, 'najam')" />
+            <q-carousel-slide :name="2" :img-src="getImagePath(nekretnina.Slika_nekretnine_2, 'najam')" />
+            <q-carousel-slide :name="3" :img-src="getImagePath(nekretnina.Slika_nekretnine_3, 'najam')" />
           </q-carousel>
 
           <!-- Info -->
@@ -324,13 +324,39 @@ export default {
     async fetchNekretnine() {
       try {
         const response = await axios.get(
-          "https://cloud-estate-api.onrender.com/api/nekretnine/najam"
+          "http://localhost:3000/api/nekretnine/najam"
         );
         this.nekretnine = response.data;
         this.currentSlide = this.nekretnine.map(() => 1);
       } catch (error) {
         console.error("Greška prilikom dohvaćanja podataka:", error);
       }
+    },
+    getImagePath(filename, type, nekretnina) { // Added nekretnina parameter
+      if (!filename) {
+        console.warn('getImagePath: Filename is missing. Cannot construct path.');
+        return '../../assets/placeholder.jpg'; // Ensure you have a placeholder image
+      }
+
+      let folderName = 'default'; // Default folder if no type is matched
+
+      // The 'type' parameter comes from Tip_nekretnine_2 alias in backend query
+      // which is 'kupnja' or 'najam'
+      if (type === 'kupnja' || type === 'najam') {
+        folderName = type;
+      } else if (nekretnina && nekretnina.Tip_nekretnine) {
+        // Fallback: If 'type' is not 'kupnja' or 'najam', try to infer from nekretnina.Tip_nekretnine
+        const propType = nekretnina.Tip_nekretnine;
+        if (propType === "Stan" || propType === "Kuća") {
+          folderName = "kupnja";
+        } else if (propType === "Najam stana" || propType === "Najam kuće") {
+          folderName = "najam";
+        }
+      }
+
+      const imageUrl = `http://localhost:3000/uploads/${folderName}/${filename}`;
+      console.log(`Attempting to load image from: ${imageUrl}`);
+      return imageUrl;
     },
     toggleType(type) {
       const index = this.selectedTypes.indexOf(type);
@@ -368,7 +394,7 @@ export default {
         "poruka": this.poruka,
         "agencija": this.selectedNekretnina.Email_agencije
       }
-      await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData)
+      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
         .then(result => {
           console.log(result.data)
         })
@@ -399,7 +425,7 @@ export default {
     };
 
     // Provjera je li nekretnina već dodana
-    const checkResponse = await axios.post("https://cloud-estate-api.onrender.com/api/provjeri_favorit", {
+    const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
       Sifra_korisnika,
       Adresa_nekretnine: nekretnina.Adresa_nekretnine,
     });
@@ -410,7 +436,7 @@ export default {
     }
 
     // Dodavanje u favorite
-    await axios.post("https://cloud-estate-api.onrender.com/api/dodaj_favorit", payload);
+    await axios.post("http://localhost:3000/api/dodaj_favorit", payload);
     alert("Nekretnina je uspješno dodana u favorite!");
   } catch (error) {
     console.error("Greška prilikom dodavanja u favorite:", error);

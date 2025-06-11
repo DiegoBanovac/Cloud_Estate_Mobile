@@ -82,7 +82,15 @@ export default defineConfig((ctx) => {
             lintCommand: 'eslint -c ./eslint.config.js "./src*/**/*.{js,mjs,cjs,vue}"',
             useFlatConfig: true
           }
-        }, { server: false }]
+        }, { server: false }],
+        ['vite-plugin-static-copy', {
+                  targets: [
+                    {
+                      src: 'src/assets/nekretnine/**/*',
+                      dest: 'assets/nekretnine'
+                    }
+                  ]
+                  }]
       ]
     },
 
@@ -107,7 +115,7 @@ export default defineConfig((ctx) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: ['Notify','Dialog']
     },
     bin: {
       windowsAndroidStudio: 'C:\\Android\\Android Studio\\bin\\studio64.exe'

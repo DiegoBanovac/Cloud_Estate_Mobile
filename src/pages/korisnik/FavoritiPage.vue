@@ -1,145 +1,135 @@
 <template>
   <div class="q-pa-md">
-    <!-- Naslov -->
     <header class="div-naslov h2 q-mb-md">Favoriti</header>
 
-    <!-- Filteri i Search Bar u istom retku -->
-<!-- Filteri i Search Bar: responzivan layout -->
-<div class="div-pocetak row q-col-gutter-md q-mb-lg items-start items-md-center">
-  <!-- Filteri: zauzimaju cijelu širinu na malim ekranima, auto širinu na većim -->
-  <div class="col-12 col-md-auto row q-gutter-sm items-center">
-    <q-btn-dropdown class="filter-button" label="Vrsta">
-      <q-list>
-        <q-item
-          clickable
-          v-close-popup
-          @click="toggleType('Stan')"
-          :active="selectedTypes.includes('Stan')"
+    <div class="div-pocetak row q-col-gutter-md q-mb-lg items-start items-md-center">
+      <div class="col-12 col-md-auto row q-gutter-sm items-center">
+        <q-btn-dropdown class="filter-button" label="Vrsta">
+          <q-list>
+            <q-item
+              clickable
+              v-close-popup
+              @click="toggleType('Stan')"
+              :active="selectedTypes.includes('Stan')"
+            >
+              <q-item-section>
+                <q-item-label>Stan</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              @click="toggleType('Kuća')"
+              :active="selectedTypes.includes('Kuća')"
+            >
+              <q-item-section>
+                <q-item-label>Kuća</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+
+        <q-btn-dropdown class="filter-button" label="Više">
+          <q-list style="min-width: 200px;">
+            <q-item>
+              <q-item-section>
+                <div class="text-subtitle1">Broj soba</div>
+                <q-btn-group spread>
+                  <q-btn
+                    v-for="sobe in [1, 2, 3, 4, 5]"
+                    :key="sobe"
+                    :label="sobe"
+                    flat
+                    toggle
+                    @click="toggleRooms(sobe)"
+                    :class="{ 'active-filter': selectedRooms.includes(sobe) }"
+                  />
+                </q-btn-group>
+              </q-item-section>
+            </q-item>
+
+            <q-item>
+              <q-item-section>
+                <div class="text-subtitle1">Broj kupaonica</div>
+                <q-btn-group spread>
+                  <q-btn
+                    v-for="kupaone in [1, 2, 3, 4, 5]"
+                    :key="kupaone"
+                    :label="kupaone"
+                    flat
+                    toggle
+                    @click="toggleBathrooms(kupaone)"
+                    :class="{ 'active-filter': selectedBathrooms.includes(kupaone) }"
+                  />
+                </q-btn-group>
+              </q-item-section>
+            </q-item>
+
+            <q-item>
+              <q-item-section>
+                <div class="text-subtitle1">Kvadratura</div>
+                <div class="row items-center">
+                  <q-input
+                    outlined
+                    v-model.number="minArea"
+                    type="number"
+                    label="Minimalna"
+                    style="width: 100px; margin-right: 10px;"
+                  />
+                  <span>-</span>
+                  <q-input
+                    outlined
+                    v-model.number="maxArea"
+                    type="number"
+                    label="Maksimalna"
+                    style="width: 100px; margin-left: 10px;"
+                  />
+                </div>
+              </q-item-section>
+            </q-item>
+
+            <q-item>
+              <q-item-section>
+                <div class="text-subtitle1">Cijena</div>
+                <div class="row items-center">
+                  <q-input
+                    outlined
+                    v-model.number="minPrice"
+                    type="number"
+                    label="Minimalna"
+                    style="width: 100px; margin-right: 10px;"
+                  />
+                  <span>-</span>
+                  <q-input
+                    outlined
+                    v-model.number="maxPrice"
+                    type="number"
+                    label="Maksimalna"
+                    style="width: 100px; margin-left: 10px;"
+                  />
+                </div>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+      </div>
+
+      <div class="col-12 col-md-auto self-start self-md-end">
+        <q-input
+          class="search-bar"
+          rounded
+          outlined
+          v-model="text"
+          style="max-width: 300px; width: 100%;"
+          dense
         >
-          <q-item-section>
-            <q-item-label>Stan</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item
-          clickable
-          v-close-popup
-          @click="toggleType('Kuća')"
-          :active="selectedTypes.includes('Kuća')"
-        >
-          <q-item-section>
-            <q-item-label>Kuća</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-btn-dropdown>
+          <template v-slot:append>
+            <q-avatar icon="search"></q-avatar>
+          </template>
+        </q-input>
+      </div>
+    </div>
 
-    <q-btn-dropdown class="filter-button" label="Više">
-      <q-list style="min-width: 200px;">
-        <!-- Sobe -->
-        <q-item>
-          <q-item-section>
-            <div class="text-subtitle1">Broj soba</div>
-            <q-btn-group spread>
-              <q-btn
-                v-for="sobe in [1, 2, 3, 4, 5]"
-                :key="sobe"
-                :label="sobe"
-                flat
-                toggle
-                @click="toggleRooms(sobe)"
-                :class="{ 'active-filter': selectedRooms.includes(sobe) }"
-              />
-            </q-btn-group>
-          </q-item-section>
-        </q-item>
-
-        <!-- Kupaonice -->
-        <q-item>
-          <q-item-section>
-            <div class="text-subtitle1">Broj kupaonica</div>
-            <q-btn-group spread>
-              <q-btn
-                v-for="kupaone in [1, 2, 3, 4, 5]"
-                :key="kupaone"
-                :label="kupaone"
-                flat
-                toggle
-                @click="toggleBathrooms(kupaone)"
-                :class="{ 'active-filter': selectedBathrooms.includes(kupaone) }"
-              />
-            </q-btn-group>
-          </q-item-section>
-        </q-item>
-
-        <!-- Kvadratura -->
-        <q-item>
-          <q-item-section>
-            <div class="text-subtitle1">Kvadratura</div>
-            <div class="row items-center">
-              <q-input
-                outlined
-                v-model.number="minArea"
-                type="number"
-                label="Minimalna"
-                style="width: 100px; margin-right: 10px;"
-              />
-              <span>-</span>
-              <q-input
-                outlined
-                v-model.number="maxArea"
-                type="number"
-                label="Maksimalna"
-                style="width: 100px; margin-left: 10px;"
-              />
-            </div>
-          </q-item-section>
-        </q-item>
-
-        <!-- Cijena -->
-        <q-item>
-          <q-item-section>
-            <div class="text-subtitle1">Cijena</div>
-            <div class="row items-center">
-              <q-input
-                outlined
-                v-model.number="minPrice"
-                type="number"
-                label="Minimalna"
-                style="width: 100px; margin-right: 10px;"
-              />
-              <span>-</span>
-              <q-input
-                outlined
-                v-model.number="maxPrice"
-                type="number"
-                label="Maksimalna"
-                style="width: 100px; margin-left: 10px;"
-              />
-            </div>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-btn-dropdown>
-  </div>
-
-  <!-- Search bar: dolje na mobitelima, desno na većim ekranima -->
-  <div class="col-12 col-md-auto self-start self-md-end">
-    <q-input
-      class="search-bar"
-      rounded
-      outlined
-      v-model="text"
-      style="max-width: 300px; width: 100%;"
-      dense
-    >
-      <template v-slot:append>
-        <q-avatar icon="search"></q-avatar>
-      </template>
-    </q-input>
-  </div>
-</div>
-
-    <!-- Prikaz nekretnina u gridu -->
     <div class="row q-col-gutter-lg justify-center">
       <q-col
         v-for="(nekretnina, index) in filtriraneNekretnine"
@@ -150,7 +140,6 @@
         lg="3"
       >
         <q-card class="my-card full-height column justify-between" flat bordered>
-          <!-- Carousel -->
           <q-carousel
             v-model="currentSlide[index]"
             animated
@@ -159,12 +148,20 @@
             infinite
             style="height: 200px;"
           >
-            <q-carousel-slide :name="1" :img-src="nekretnina.Slika_nekretnine" />
-            <q-carousel-slide :name="2" :img-src="nekretnina.Slika_nekretnine_2" />
-            <q-carousel-slide :name="3" :img-src="nekretnina.Slika_nekretnine_3" />
+            <q-carousel-slide
+              :name="1"
+              :img-src="getImagePath(nekretnina.Slika_nekretnine, nekretnina.Tip_nekretnine_2)"
+            />
+            <q-carousel-slide
+              :name="2"
+              :img-src="getImagePath(nekretnina.Slika_nekretnine_2, nekretnina.Tip_nekretnine_2)"
+            />
+            <q-carousel-slide
+              :name="3"
+              :img-src="getImagePath(nekretnina.Slika_nekretnine_3, nekretnina.Tip_nekretnine_2)"
+            />
           </q-carousel>
 
-          <!-- Info -->
           <q-card-section>
             <div class="text-overline text-primary">
               {{ nekretnina.Tip_nekretnine }}
@@ -189,7 +186,6 @@
             </div>
           </q-card-section>
 
-          <!-- Cijena + gumbi -->
           <q-card-actions class="q-card-actions">
             <span class="price">€{{ nekretnina.Cijena_nekretnine }}</span>
             <div class="button-group">
@@ -197,9 +193,9 @@
                 flat
                 style="background-color: white; color: black; border-radius: 30px; border: 1px solid #e0e0e0; padding: 0.5rem 1.5rem; font-weight: 400; margin-right: 0.5rem;"
                 @click="removeFavorite(nekretnina)"
-                >
+              >
                 <q-icon name="remove" size="sm" style="color: lightgrey;" />
-          </q-btn>
+              </q-btn>
               <q-btn
                 flat
                 label="Kontaktiraj"
@@ -218,73 +214,69 @@
       </q-col>
     </div>
 
-    <!-- Dijalog -->
-    <!-- Dijalog za prikaz kontaktiranja -->
     <q-dialog v-model="dialogOpen">
-    <q-card>
-      <q-card-section>
-        <header class="h2">Kontaktiraj agenta</header>
-        <div style="display: flex; justify-content: flex-end;">
-          <q-btn
-            flat
-            round
-            dense
-            icon="close"
-            @click="dialogOpen = false"
-            style="color: #e0e0e0; font-size: 1.2rem; margin-top: 3px;"
-          />
-        </div>
-      </q-card-section>
-
-      <q-form>
-        <div class="q-gutter-md">
-          <q-input
-            filled
-            v-model="ime"
-            label="Ime"
-            style="margin-left: 2rem; margin-right: 1rem;"
+      <q-card>
+        <q-card-section>
+          <header class="h2">Kontaktiraj agenta</header>
+          <div style="display: flex; justify-content: flex-end;">
+            <q-btn
+              flat
+              round
+              dense
+              icon="close"
+              @click="dialogOpen = false"
+              style="color: #e0e0e0; font-size: 1.2rem; margin-top: 3px;"
             />
-          <q-input
-            filled
-            v-model="email"
-            label="E-mail"
-            style="margin-left: 2rem; margin-right: 1rem;"
-            />
-          <q-input
-            filled
-            v-model="telefon"
-            label="Telefon"
-            style="margin-left: 2rem; margin-right: 1rem;"
-            />
-          <q-input
-            v-model="poruka"
-            filled
-            type="textarea"
-            label="Poruka"
-            style="margin-left: 2rem; margin-right: 1rem;"
-            />
-        <div>
-          <!-- Gumb za slanje -->
-          <q-btn
-            flat
-            label="Pošalji"
-            @click="insertKontakt()"
-            style="
-              margin-top: 25rem;
-              background-color: #007bff;
-              color: white;
-              border-radius: 30px;
-              padding: 0.5rem 1.5rem;
-              font-weight: bold;"
-          />
           </div>
-        </div>
-      </q-form>
-  </q-card>
-</q-dialog>
+        </q-card-section>
+
+        <q-form>
+          <div class="q-gutter-md">
+            <q-input
+              filled
+              v-model="ime"
+              label="Ime"
+              style="margin-left: 2rem; margin-right: 1rem;"
+            />
+            <q-input
+              filled
+              v-model="email"
+              label="E-mail"
+              style="margin-left: 2rem; margin-right: 1rem;"
+            />
+            <q-input
+              filled
+              v-model="telefon"
+              label="Telefon"
+              style="margin-left: 2rem; margin-right: 1rem;"
+            />
+            <q-input
+              v-model="poruka"
+              filled
+              type="textarea"
+              label="Poruka"
+              style="margin-left: 2rem; margin-right: 1rem;"
+            />
+            <div>
+              <q-btn
+                flat
+                label="Pošalji"
+                @click="insertKontakt()"
+                style="
+                  margin-top: 25rem;
+                  background-color: #007bff;
+                  color: white;
+                  border-radius: 30px;
+                  padding: 0.5rem 1.5rem;
+                  font-weight: bold;"
+              />
+            </div>
+          </div>
+        </q-form>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
-
 
 <script>
 import axios from "axios";
@@ -336,14 +328,46 @@ export default {
         }
 
         const response = await axios.get(
-          `https://cloud-estate-api.onrender.com/api/favoriti?sifraKorisnika=${sifraKorisnika}`
+          `http://localhost:3000/api/favoriti?sifraKorisnika=${sifraKorisnika}`
         );
+
+        // Directly use the Tip_nekretnine_2 from the database response
         this.nekretnine = response.data;
         this.currentSlide = this.nekretnine.map(() => 1);
       } catch (error) {
         console.error("Greška prilikom dohvaćanja podataka:", error);
       }
     },
+
+    getImagePath(filename, type) {
+  if (!filename) {
+    console.warn('getImagePath: Filename is missing. Cannot construct path.');
+    return '';
+  }
+  if (!type || type.trim() === '') {
+    console.warn(`getImagePath: Type (nekretnina.Tip_nekretnine_2) is missing or empty for filename: ${filename}.`);
+    return '';
+  }
+
+  const normalizedType = type.toLowerCase().trim();
+
+  // Construct the relative path string based on your component's location:
+  // If Favoriti.vue is in 'src/pages/korisnik/', you need to go up two levels (../../)
+  // to reach 'src/' and then go down into 'assets/nekretnine/'.
+  const relativePathToAsset = `../../assets/nekretnine/${normalizedType}/${filename}`;
+
+  try {
+    // IMPORTANT: The URL constructor resolves the first argument relative to the second.
+    // import.meta.url points to the current module (e.g., Favoriti.vue).
+    const path = new URL(relativePathToAsset, import.meta.url).href;
+
+    console.log(`getImagePath: Generated path for ${filename} (original type: ${type}, normalized: ${normalizedType}, relative path used: ${relativePathToAsset}): ${path}`);
+    return path;
+  } catch (e) {
+    console.error(`getImagePath: Error generating path for ${filename} (original type: ${type}, normalized: ${normalizedType}, relative path used: ${relativePathToAsset}):`, e);
+    return '';
+  }
+},
     toggleType(type) {
       const index = this.selectedTypes.indexOf(type);
       if (index === -1) {
@@ -380,7 +404,7 @@ export default {
         "poruka": this.poruka,
         "agencija": this.selectedNekretnina.Email_agencije
       }
-      await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData)
+      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
         .then(result => {
           console.log(result.data)
         })
@@ -390,40 +414,40 @@ export default {
     },
     // Metoda za uklanjanje iz favorita
     async removeFavorite(nekretnina) {
-  try {
-    const Sifra_korisnika = localStorage.getItem('Sifra_korisnika');
-    if (!Sifra_korisnika) {
-      alert("Niste prijavljeni. Molimo prijavite se.");
-      return;
+      try {
+        const Sifra_korisnika = localStorage.getItem('Sifra_korisnika');
+        if (!Sifra_korisnika) {
+          alert("Niste prijavljeni. Molimo prijavite se.");
+          return;
+        }
+
+        const payload = {
+          Sifra_korisnika,
+          Adresa_nekretnine: nekretnina.Adresa_nekretnine,
+        };
+
+        // Provjera je li nekretnina uopće u favoritima
+        const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
+          Sifra_korisnika,
+          Adresa_nekretnine: nekretnina.Adresa_nekretnine,
+        });
+
+        if (!checkResponse.data.exists) {
+          alert("Nekretnina nije u favoritima.");
+          return;
+        }
+
+        // Uklanjanje iz favorita
+        await axios.post("http://localhost:3000/api/izbrisi_favorit", payload);
+        alert("Nekretnina je uspješno uklonjena iz favorita!");
+
+        // Ponovno učitaj favorite kako bi se lista ažurirala
+        this.fetchFavoriti();
+      } catch (error) {
+        console.error("Greška prilikom uklanjanja iz favorita:", error);
+        alert("Došlo je do greške. Molimo pokušajte ponovo.");
+      }
     }
-
-    const payload = {
-      Sifra_korisnika,
-      Adresa_nekretnine: nekretnina.Adresa_nekretnine,
-    };
-
-    // Provjera je li nekretnina uopće u favoritima
-    const checkResponse = await axios.post("https://cloud-estate-api.onrender.com/api/provjeri_favorit", {
-      Sifra_korisnika,
-      Adresa_nekretnine: nekretnina.Adresa_nekretnine,
-    });
-
-    if (!checkResponse.data.exists) {
-      alert("Nekretnina nije u favoritima.");
-      return;
-    }
-
-    // Uklanjanje iz favorita
-    await axios.post("https://cloud-estate-api.onrender.com/api/izbrisi_favorit", payload);
-    alert("Nekretnina je uspješno uklonjena iz favorita!");
-
-    // Ponovno učitaj favorite kako bi se lista ažurirala
-    this.fetchFavoriti();
-  } catch (error) {
-    console.error("Greška prilikom uklanjanja iz favorita:", error);
-    alert("Došlo je do greške. Molimo pokušajte ponovo.");
-  }
-}
   },
   computed: {
     filtriraneNekretnine() {
@@ -462,7 +486,6 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-
 .div-naslov
   margin-left: 15px
 
