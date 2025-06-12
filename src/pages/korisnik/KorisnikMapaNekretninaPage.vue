@@ -144,7 +144,7 @@ export default {
       }
     },
     fetchNekretnineKupnja() {
-      axios.get('http://localhost:3000/api/nekretnine/kupnja')
+      axios.get('https://cloud-estate-api.onrender.com/api/nekretnine/kupnja')
         .then(response => {
           this.nekretnineKupnja = response.data;
           this.initMap();
@@ -154,7 +154,7 @@ export default {
         });
     },
     fetchNekretnineNajam() {
-      axios.get('http://localhost:3000/api/nekretnine/najam')
+      axios.get('https://cloud-estate-api.onrender.com/api/nekretnine/najam')
         .then(response => {
           this.nekretnineNajam = response.data;
           this.initMap();
@@ -255,7 +255,7 @@ export default {
         poruka: this.poruka,
         agencija: this.selectedNekretnina.Email_agencije,
       };
-      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
+      await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData)
         .then(result => {
           console.log(result.data);
         })

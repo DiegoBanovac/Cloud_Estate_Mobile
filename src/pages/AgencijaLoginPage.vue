@@ -65,7 +65,7 @@ export default {
     submitForm() {
   if (this.isFormValid()) {
     axios
-      .post("http://localhost:3000/api/login_agencija", {
+      .post("https://cloud-estate-api.onrender.com/api/login_agencija", {
         email: this.user.email,
         lozinka: this.user.password,
       })
@@ -78,7 +78,7 @@ export default {
           localStorage.setItem("Naziv_agencije", korisnik.Naziv_agencije);
           localStorage.setItem("Sifra_agencije", korisnik.Sifra_agencije);
           localStorage.setItem("Email_agencije", korisnik.Email_agencije);
-          localStorage.setItem("jwt_token", token); 
+          localStorage.setItem("jwt_token", token);
         }
 
         alert("Prijava uspješna!");

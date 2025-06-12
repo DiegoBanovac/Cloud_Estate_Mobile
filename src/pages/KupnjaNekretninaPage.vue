@@ -324,7 +324,7 @@ export default {
     async fetchNekretnine() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/nekretnine/kupnja"
+          "https://cloud-estate-api.onrender.com/api/nekretnine/kupnja"
         );
         this.nekretnine = response.data;
         this.currentSlide = this.nekretnine.map(() => 1);
@@ -354,7 +354,7 @@ export default {
         }
       }
 
-      const imageUrl = `http://localhost:3000/uploads/${folderName}/${filename}`;
+      const imageUrl = `https://cloud-estate-api.onrender.com/uploads/${folderName}/${filename}`;
       console.log(`Attempting to load image from: ${imageUrl}`);
       return imageUrl;
     },
@@ -396,7 +396,7 @@ export default {
   }
 
   try {
-    await axios.post('http://localhost:3000/api/kontaktiraj', formData);
+    await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData);
     console.log("Poruka uspješno poslana");
 
     // Reset forme
@@ -445,7 +445,7 @@ export default {
     };
 
     // Provjera je li nekretnina već dodana
-    const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
+    const checkResponse = await axios.post("https://cloud-estate-api.onrender.com/api/provjeri_favorit", {
       Sifra_korisnika,
       Adresa_nekretnine: nekretnina.Adresa_nekretnine,
     });
@@ -456,7 +456,7 @@ export default {
     }
 
     // Dodavanje u favorite
-    await axios.post("http://localhost:3000/api/dodaj_favorit", payload);
+    await axios.post("https://cloud-estate-api.onrender.com/api/dodaj_favorit", payload);
     alert("Nekretnina je uspješno dodana u favorite!");
   } catch (error) {
     console.error("Greška prilikom dodavanja u favorite:", error);

@@ -607,7 +607,7 @@ export default {
 
     // GET zahtjev, sada bez Email_agencije u URL-u jer se ID dohvaća iz tokena na backendu
     const response = await axios.get(
-      "http://localhost:3000/api/nekretnine_agencija", // URL bez query parametra Email_agencije
+      "https://cloud-estate-api.onrender.com/api/nekretnine_agencija", // URL bez query parametra Email_agencije
       config // Prosljeđivanje config objekta sa zaglavljem autorizacije
     );
 
@@ -656,7 +656,7 @@ export default {
         }
       }
 
-      const imageUrl = `http://localhost:3000/uploads/${folderName}/${filename}`;
+      const imageUrl = `https://cloud-estate-api.onrender.com/uploads/${folderName}/${filename}`;
       console.log(`Attempting to load image from: ${imageUrl}`);
       return imageUrl;
     },
@@ -719,7 +719,7 @@ export default {
         };
 
         const response = await axios.put(
-          `http://localhost:3000/api/nekretnine/${this.editForm.Sifra_nekretnine}`, // Updated URL
+          `https://cloud-estate-api.onrender.com/api/nekretnine/${this.editForm.Sifra_nekretnine}`, // Updated URL
           this.editForm,
           config
         );
@@ -868,7 +868,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:3000/api/dodaj_nekretninu", // Updated URL
+          "https://cloud-estate-api.onrender.com/api/dodaj_nekretninu", // Updated URL
           formData,
           {
             headers: {
@@ -954,7 +954,7 @@ export default {
         }).onOk(async () => {
           // Send DELETE request to backend
           const response = await axios.delete(
-            `http://localhost:3000/api/nekretnine/${nekretnina.Sifra_nekretnine}`, // Updated URL
+            `https://cloud-estate-api.onrender.com/api/nekretnine/${nekretnina.Sifra_nekretnine}`, // Updated URL
             config
           );
 
