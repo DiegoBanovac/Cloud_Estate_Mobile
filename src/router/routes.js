@@ -34,7 +34,7 @@ const routes = [
           { path: '/agencija/najam_nekretnina', component: () => import('pages/agencija/AgencijaNajamNekretninaPage.vue') },
           { path: "/agencija/popis_agencija",component: () => import("pages/agencija/AgencijaPopisAgencijaPage.vue"),},
           { path: '/agencija/mapa_nekretnina', component: () => import('pages/agencija/AgencijaMapaNekretninaPage.vue') },
-          { path: "/agencija/agencija_nekretnine", component: () => import("pages/agencija/AgencijaONamaPage.vue") },
+          { path: "/agencija/o_nama", component: () => import("pages/agencija/AgencijaONamaPage.vue") },
           { path: "/agencija/popis_nekretnina", component: () => import("pages/agencija/AgencijaNekretninaPage.vue") }
       ]}
 

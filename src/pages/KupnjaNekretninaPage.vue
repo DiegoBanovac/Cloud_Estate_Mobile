@@ -387,21 +387,41 @@ export default {
       this.dialogOpen = true
     },
     async insertKontakt() {
-      const formData = {
-        "ime": this.ime,
-        "email": this.email,
-        "telefon": this.telefon,
-        "poruka": this.poruka,
-        "agencija": this.selectedNekretnina.Email_agencije
-      }
-      await axios.post('http://localhost:3000/api/kontaktiraj', formData)
-        .then(result => {
-          console.log(result.data)
-        })
-        .catch(error => {
-          console.error(error)
-        })
-    },async addFavorite(nekretnina) {
+  const formData = {
+    "ime": this.ime,
+    "email": this.email,
+    "telefon": this.telefon,
+    "poruka": this.poruka,
+    "agencija": this.selectedNekretnina.Email_agencije
+  }
+
+  try {
+    await axios.post('http://localhost:3000/api/kontaktiraj', formData);
+    console.log("Poruka uspješno poslana");
+
+    // Reset forme
+    this.ime = null;
+    this.email = null;
+    this.telefon = null;
+    this.poruka = null;
+
+    // Zatvori dijalog
+    this.dialogOpen = false;
+
+    // Opcionalno: Prikaži poruku o uspjehu
+    this.$q.notify({
+      type: 'positive',
+      message: 'Poruka je uspješno poslana!'
+    });
+
+  } catch (error) {
+    console.error(error);
+    this.$q.notify({
+      type: 'negative',
+      message: 'Došlo je do greške pri slanju poruke.'
+    });
+  }
+},async addFavorite(nekretnina) {
   try {
     const Sifra_korisnika = localStorage.getItem('Sifra_korisnika');
     if (!Sifra_korisnika) {

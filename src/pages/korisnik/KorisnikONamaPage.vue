@@ -11,7 +11,13 @@
     <div class="opis">
       <h1>O nama</h1>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus mauris nulla, malesuada nec sollicitudin a, laoreet ut nisl. Phasellus fringilla arcu at magna bibendum vulputate. Maecenas pharetra erat nec dui interdum, vel auctor dolor maximus. Sed odio ligula, pulvinar id tempor non, lacinia et eros. Fusce vehicula faucibus tincidunt. Sed vel libero vel arcu fringilla bibendum. Sed sed commodo purus.
+        Cloud Estate je inovativna digitalna platforma koja omogućuje centralizirano oglašavanje, pretragu i upravljanje nekretninama na području cijele Hrvatske. Naša vizija je stvoriti transparentno i učinkovito tržište nekretnina dostupno svima – bilo da ste profesionalna agencija ili privatni korisnik u potrazi za novim domom, investicijom ili poslovnim prostorom.
+
+Agencijama za nekretnine omogućujemo jednostavno objavljivanje i upravljanje ponudom putem modernog i intuitivnog sučelja, dok korisnicima pružamo pouzdanu i preglednu tražilicu kojom brzo dolaze do nekretnine po svojoj mjeri – za kupnju ili najam.
+
+S obzirom na to da smo smješteni u Rijeci, iz prve ruke razumijemo dinamiku hrvatskog tržišta nekretnina i razvijamo rješenja koja odgovaraju stvarnim potrebama korisnika. Naš cilj je digitalizirati i unaprijediti način na koji se nekretnine prezentiraju, traže i kupuju u Hrvatskoj.
+
+Cloud Estate je više od aplikacije – to je prostor gdje se spajaju prilike, ljudi i domovi.
       </p>
     </div>
 
