@@ -320,24 +320,50 @@ export default {
   },
   methods: {
     async fetchFavoriti() {
-      try {
-        const sifraKorisnika = localStorage.getItem("Sifra_korisnika");
-        if (!sifraKorisnika) {
-          alert("Niste prijavljeni. Molimo prijavite se.");
-          return;
-        }
+  try {
+    // const sifraKorisnika = localStorage.getItem("Sifra_korisnika"); // Ova linija više nije potrebna za API poziv
+    const token = localStorage.getItem('jwt_token'); // Dohvatite JWT token iz localStorage-a
 
-        const response = await axios.get(
-          `http://localhost:3000/api/favoriti?sifraKorisnika=${sifraKorisnika}`
-        );
+    if (!token) { // Provjera da li token postoji
+      alert("Niste prijavljeni. Molimo prijavite se.");
+      // Očistite localStorage i preusmjerite na stranicu za prijavu ako nema tokena
+      localStorage.removeItem('jwt_token');
+      localStorage.removeItem('Ime_korisnika');
+      localStorage.removeItem('Sifra_korisnika');
+      // Ovdje biste trebali dodati preusmjeravanje, npr. this.router.push('/login');
+      return;
+    }
 
-        // Directly use the Tip_nekretnine_2 from the database response
-        this.nekretnine = response.data;
-        this.currentSlide = this.nekretnine.map(() => 1);
-      } catch (error) {
-        console.error("Greška prilikom dohvaćanja podataka:", error);
+    // Konfiguracija zaglavlja s tokenom
+    const config = {
+      headers: {
+        'x-auth-token': token // Dodajte token u 'x-auth-token' zaglavlje
       }
-    },
+    };
+
+    // GET zahtjev, sada bez sifraKorisnika u URL-u jer se ID dohvaća iz tokena na backendu
+    const response = await axios.get(
+      "http://localhost:3000/api/favoriti", // URL bez query parametra sifraKorisnika
+      config // Prosljeđivanje config objekta sa zaglavljem autorizacije
+    );
+
+    // Directly use the Tip_nekretnine_2 from the database response
+    this.nekretnine = response.data;
+    this.currentSlide = this.nekretnine.map(() => 1);
+  } catch (error) {
+    console.error("Greška prilikom dohvaćanja podataka:", error);
+    // Unaprijeđeno rukovanje greškama, posebno za 401 Unauthorized
+    if (error.response && error.response.status === 401) {
+      alert("Sesija je istekla ili niste autorizirani. Molimo prijavite se ponovno.");
+      localStorage.removeItem('jwt_token'); // Obrišite nevažeći token
+      localStorage.removeItem('Ime_korisnika');
+      localStorage.removeItem('Sifra_korisnika');
+      // Ovdje dodajte preusmjeravanje na login stranicu, npr. this.router.push('/login');
+    } else {
+      alert("Došlo je do greške prilikom dohvaćanja favorita.");
+    }
+  }
+},
 
     getImagePath(filename, type) {
   if (!filename) {
@@ -414,40 +440,65 @@ export default {
     },
     // Metoda za uklanjanje iz favorita
     async removeFavorite(nekretnina) {
-      try {
-        const Sifra_korisnika = localStorage.getItem('Sifra_korisnika');
-        if (!Sifra_korisnika) {
-          alert("Niste prijavljeni. Molimo prijavite se.");
-          return;
-        }
+  try {
+    const Sifra_korisnika = localStorage.getItem('Sifra_korisnika'); // Iako će backend koristiti iz tokena, ostavljamo za lokalnu provjeru
+    const token = localStorage.getItem('jwt_token'); // Dohvatite JWT token
 
-        const payload = {
-          Sifra_korisnika,
-          Adresa_nekretnine: nekretnina.Adresa_nekretnine,
-        };
-
-        // Provjera je li nekretnina uopće u favoritima
-        const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
-          Sifra_korisnika,
-          Adresa_nekretnine: nekretnina.Adresa_nekretnine,
-        });
-
-        if (!checkResponse.data.exists) {
-          alert("Nekretnina nije u favoritima.");
-          return;
-        }
-
-        // Uklanjanje iz favorita
-        await axios.post("http://localhost:3000/api/izbrisi_favorit", payload);
-        alert("Nekretnina je uspješno uklonjena iz favorita!");
-
-        // Ponovno učitaj favorite kako bi se lista ažurirala
-        this.fetchFavoriti();
-      } catch (error) {
-        console.error("Greška prilikom uklanjanja iz favorita:", error);
-        alert("Došlo je do greške. Molimo pokušajte ponovo.");
-      }
+    if (!Sifra_korisnika || !token) { // Provjerite i sifraKorisnika i token
+      alert("Niste prijavljeni. Molimo prijavite se.");
+      localStorage.removeItem('jwt_token');
+      localStorage.removeItem('Ime_korisnika');
+      localStorage.removeItem('Sifra_korisnika');
+      // Ovdje dodajte preusmjeravanje na login stranicu, npr. this.router.push('/login');
+      return;
     }
+
+    const payload = {
+      Sifra_korisnika, // Ovu vrijednost backend sada zanemaruje i koristi Sifra_korisnika iz tokena
+      Adresa_nekretnine: nekretnina.Adresa_nekretnine,
+    };
+
+    // Konfiguracija zaglavlja s tokenom
+    const config = {
+      headers: {
+        'x-auth-token': token // Dodajte token u 'x-auth-token' zaglavlje
+      }
+    };
+
+    // Provjera je li nekretnina uopće u favoritima
+    // Pobrinite se da i provjeri_favorit ruta na backendu ima 'auth' middleware
+    const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
+      Sifra_korisnika, // I ovdje se šalje, ali backend koristi iz tokena
+      Adresa_nekretnine: nekretnina.Adresa_nekretnine,
+    }, config); // DODANO: config za autorizaciju
+
+    if (!checkResponse.data.exists) {
+      alert("Nekretnina nije u favoritima.");
+      return;
+    }
+
+    // Uklanjanje iz favorita
+    // Pobrinite se da i izbrisi_favorit ruta na backendu ima 'auth' middleware
+    await axios.post("http://localhost:3000/api/izbrisi_favorit", payload, config); // DODANO: config za autorizaciju
+    alert("Nekretnina je uspješno uklonjena iz favorita!");
+
+    // Ponovno učitaj favorite kako bi se lista ažurirala
+    // Ova funkcija (fetchFavoriti) također mora slati token! (što smo već riješili)
+    this.fetchFavoriti();
+  } catch (error) {
+    console.error("Greška prilikom uklanjanja iz favorita:", error);
+    // Unaprijeđeno rukovanje greškama, posebno za 401 Unauthorized
+    if (error.response && error.response.status === 401) {
+      alert("Sesija je istekla ili niste autorizirani. Molimo prijavite se ponovno.");
+      localStorage.removeItem('jwt_token'); // Obrišite nevažeći token
+      localStorage.removeItem('Ime_korisnika');
+      localStorage.removeItem('Sifra_korisnika');
+      // Ovdje dodajte preusmjeravanje na login stranicu, npr. this.router.push('/login');
+    } else {
+      alert("Došlo je do greške. Molimo pokušajte ponovo.");
+    }
+  }
+}
   },
   computed: {
     filtriraneNekretnine() {

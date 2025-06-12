@@ -3,7 +3,6 @@
     <q-header class="custom-header">
       <q-toolbar class="text-black items-center q-gutter-sm no-wrap">
 
-  <!-- Hamburger za male ekrane -->
   <q-btn
     flat
     dense
@@ -14,7 +13,6 @@
     v-if="$q.screen.lt.md"
   />
 
-  <!-- Naslov -->
   <q-btn
     flat
     dense
@@ -22,8 +20,6 @@
     @click="navigateTo('/korisnik')"
     label="Cloud Estate"
   />
-
-  <!-- Navigacija za veće ekrane -->
 
   <template v-if="$q.screen.gt.sm">
       <div class="row items-center q-gutter-x-lg q-ml-xl nav-center">
@@ -58,7 +54,6 @@
 
   <q-space />
   <span v-if="imeKorisnika" class="ime">{{ imeKorisnika }}</span>
-  <!-- Dropdown s prijavom/registracijom -->
   <div class="q-pa-md">
           <q-btn-dropdown flat round dense icon="account_circle">
             <q-list>
@@ -108,10 +103,6 @@
   </q-list>
 </q-drawer>
 
-    <!-- Footer s gumbovima -->
-
-
-    <!-- Sadržaj stranice -->
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -198,19 +189,24 @@ const route = useRoute()
 const drawerOpen = ref(false)
 const imeKorisnika = ref('')
 const sifraKorisnika = ref('')
+const jwtToken = ref('') // New ref for JWT token
 
-// Dohvaćanje imena korisnika iz localStorage prilikom montiranja komponente
+// Dohvaćanje imena korisnika, šifre i JWT tokena iz localStorage prilikom montiranja komponente
 onMounted(() => {
   imeKorisnika.value = localStorage.getItem('Ime_korisnika') || ''
   sifraKorisnika.value = localStorage.getItem('Sifra_korisnika') || ''
+  jwtToken.value = localStorage.getItem('jwt_token') || '' // Get JWT token
+
   console.log('Ime korisnika:', imeKorisnika.value)
   console.log('Sifra korisnika:', sifraKorisnika.value)
+  console.log('JWT Token:', jwtToken.value) // Log the JWT token
 })
 
 // Funkcija za odjavu
 function logout() {
   localStorage.removeItem('Ime_korisnika')
   localStorage.removeItem('Sifra_korisnika')
+  localStorage.removeItem('jwt_token') // Also remove JWT token on logout
   router.push('/')
 }
 
@@ -224,4 +220,3 @@ function isActive(path) {
   return route.path === path
 }
 </script>
-

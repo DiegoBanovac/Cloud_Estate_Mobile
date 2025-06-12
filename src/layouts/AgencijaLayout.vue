@@ -199,15 +199,19 @@ const drawerOpen = ref(false)
 const imeKorisnika = ref('')
 const sifraKorisnika = ref('')
 const emailKorisnika = ref('')
+const jwtToken = ref('') // New ref for JWT token
 
 // Dohvaćanje imena korisnika iz localStorage prilikom montiranja komponente
 onMounted(() => {
   imeKorisnika.value = localStorage.getItem('Naziv_agencije') || ''
   sifraKorisnika.value = localStorage.getItem('Sifra_agencije') || ''
   emailKorisnika.value = localStorage.getItem('Email_agencije') || ''
+  jwtToken.value = localStorage.getItem('jwt_token') || '' // Get JWT token
+
   console.log('Naziv_agencije:', imeKorisnika.value)
   console.log('Sifra_agencije:', sifraKorisnika.value)
   console.log('Email_agencije:', emailKorisnika.value)
+  console.log('JWT Token:', jwtToken.value) // Log the JWT token
 })
 
 // Funkcija za odjavu
@@ -215,6 +219,7 @@ function logout() {
   localStorage.removeItem('Naziv_agencije')
   localStorage.removeItem('Sifra_agencije')
   localStorage.removeItem('Email_agencije')
+  localStorage.removeItem('jwt_token')
   router.push('/')
 }
 

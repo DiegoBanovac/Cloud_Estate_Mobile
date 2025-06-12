@@ -203,7 +203,7 @@ export default {
         "poruka": this.poruka,
         "agencija": this.selectedNekretnina.Email_agencije
       }
-      await axios.post('https://cloud-estate-api.onrender.com/api/kontaktiraj', formData)
+      await axios.post('http:/localhost:3000/api/kontaktiraj', formData)
         .then(result => {
           console.log(result.data)
         })

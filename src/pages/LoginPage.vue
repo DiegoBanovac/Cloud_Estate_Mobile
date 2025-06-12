@@ -1,6 +1,5 @@
 <template>
   <q-page padding>
-    <!-- Login Form -->
     <div class="q-pa-md">
       <q-card>
         <q-card-section>
@@ -8,7 +7,6 @@
         </q-card-section>
 
         <q-card-section>
-          <!-- Email Input Field -->
           <q-input
             v-model="user.email"
             label="Email"
@@ -17,7 +15,6 @@
             class="q-mb-md"
           />
 
-          <!-- Password Input Field -->
           <q-input
             v-model="user.password"
             label="Lozinka"
@@ -27,7 +24,6 @@
             class="q-mb-md"
           />
 
-          <!-- Submit Button -->
           <q-btn
             label="Potvrdi"
             color="primary"
@@ -41,13 +37,12 @@
 </template>
 
 <script>
-import axios from "axios"; // Uvoz axios za slanje POST zahtjeva
-import { useRouter } from "vue-router"; // Uvoz Vue Router-a
+import axios from "axios";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
-    const router = useRouter(); // Inicijaliziraj router
-
+    const router = useRouter();
     return {
       router
     };
@@ -55,50 +50,43 @@ export default {
   data() {
     return {
       user: {
-        email: '', // Polje za email
-        password: '' // Polje za lozinku
+        email: '',
+        password: ''
       }
     };
   },
   methods: {
-    // Metoda za podnošenje forme
     submitForm() {
-  if (this.isFormValid()) {
-    axios
-      .post("https://cloud-estate-api.onrender.com/api/login", {
-        email: this.user.email,
-        lozinka: this.user.password,
-      })
-      .then((response) => {
-        const { message, korisnik } = response.data;
-        console.log(message);
+      if (this.isFormValid()) {
+        axios
+          .post("http://localhost:3000/api/login", {
+            email: this.user.email,
+            lozinka: this.user.password,
+          })
+          .then((response) => {
+            const { message, korisnik, token } = response.data; // Destructure token from response
+            console.log(message);
 
-        if (korisnik && korisnik.Ime_korisnika) {
-          // Spremanje imena korisnika u localStorage
-          localStorage.setItem("Ime_korisnika", korisnik.Ime_korisnika);
-          localStorage.setItem("Sifra_korisnika", korisnik.Sifra_korisnika);
-        }
+            if (korisnik && korisnik.Ime_korisnika) {
+              localStorage.setItem("Ime_korisnika", korisnik.Ime_korisnika);
+              localStorage.setItem("Sifra_korisnika", korisnik.Sifra_korisnika);
+              localStorage.setItem("jwt_token", token); // Store the JWT in localStorage
+            }
 
-        alert("Prijava uspješna!");
-        this.router.push("/korisnik");
-      })
-      .catch((error) => {
-        console.error("Greška prilikom prijave:", error);
-        alert("Neispravan email ili lozinka.");
-      });
-  } else {
-    alert("Molimo ispunite sve obavezne podatke.");
-  }
-},
-
-
-
-    // Provjera validnosti forme
+            alert("Prijava uspješna!");
+            this.router.push("/korisnik");
+          })
+          .catch((error) => {
+            console.error("Greška prilikom prijave:", error);
+            alert("Neispravan email ili lozinka.");
+          });
+      } else {
+        alert("Molimo ispunite sve obavezne podatke.");
+      }
+    },
     isFormValid() {
       return this.user.email && this.user.password;
     },
-
-    // Resetiranje forme
     resetForm() {
       this.user.email = "";
       this.user.password = "";

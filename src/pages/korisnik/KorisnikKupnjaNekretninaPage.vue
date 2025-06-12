@@ -401,16 +401,25 @@ export default {
         .catch(error => {
           console.error(error)
         })
-    },async addFavorite(nekretnina) {
+    },
+    async addFavorite(nekretnina) {
   try {
     const Sifra_korisnika = localStorage.getItem('Sifra_korisnika');
-    if (!Sifra_korisnika) {
+    // DOHVAĆANJE TOKENA
+    const token = localStorage.getItem('jwt_token'); // Dohvatite JWT token iz localStorage-a
+
+    if (!Sifra_korisnika || !token) { // Dodana provjera tokena
       alert("Niste prijavljeni. Molimo prijavite se.");
+      // Očistite localStorage i preusmjerite na stranicu za prijavu ako nema tokena
+      localStorage.removeItem('jwt_token');
+      localStorage.removeItem('Ime_korisnika');
+      localStorage.removeItem('Sifra_korisnika');
+      // Ovdje biste trebali dodati preusmjeravanje, npr. router.push('/login');
       return;
     }
 
     const payload = {
-      Sifra_korisnika,
+      Sifra_korisnika, // Ovu vrijednost backend sada zanemaruje i koristi Sifra_korisnika iz tokena
       Adresa_nekretnine: nekretnina.Adresa_nekretnine,
       Kvadratura_nekretnine: nekretnina.Kvadratura_nekretnine,
       Broj_soba: nekretnina.Broj_soba,
@@ -422,14 +431,21 @@ export default {
       Slika_nekretnine_2: nekretnina.Slika_nekretnine_2,
       Slika_nekretnine_3: nekretnina.Slika_nekretnine_3,
       Email_agencije: nekretnina.Email_agencije,
-      Tip_nekretnine_2: 'Kupnja',
+      Tip_nekretnine_2: 'Kupnja', // Pretpostavka, prilagodite ako je dinamicki
+    };
+
+    // Konfiguracija zaglavlja s tokenom
+    const config = {
+      headers: {
+        'x-auth-token': token // Dodajte token u 'x-auth-token' zaglavlje
+      }
     };
 
     // Provjera je li nekretnina već dodana
     const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
-      Sifra_korisnika,
+      Sifra_korisnika, // Ovu vrijednost backend sada zanemaruje i koristi Sifra_korisnika iz tokena
       Adresa_nekretnine: nekretnina.Adresa_nekretnine,
-    });
+    }, config); // Dodajte config za slanje tokena i kod provjere favorita
 
     if (checkResponse.data.exists) {
       alert("Nekretnina se već nalazi u favoritima.");
@@ -437,11 +453,20 @@ export default {
     }
 
     // Dodavanje u favorite
-    await axios.post("http://localhost:3000/api/dodaj_favorit", payload);
+    await axios.post("http://localhost:3000/api/dodaj_favorit", payload, config); // Dodajte config za slanje tokena
     alert("Nekretnina je uspješno dodana u favorite!");
   } catch (error) {
     console.error("Greška prilikom dodavanja u favorite:", error);
-    alert("Došlo je do greške. Molimo pokušajte ponovo.");
+    // Unaprijeđeno rukovanje greškama, posebno za 401 Unauthorized
+    if (error.response && error.response.status === 401) {
+      alert("Sesija je istekla ili niste autorizirani. Molimo prijavite se ponovno.");
+      localStorage.removeItem('jwt_token'); // Obrišite nevažeći token
+      localStorage.removeItem('Ime_korisnika');
+      localStorage.removeItem('Sifra_korisnika');
+      // Ovdje dodajte preusmjeravanje na login stranicu, npr. this.router.push('/login');
+    } else {
+      alert("Došlo je do greške. Molimo pokušajte ponovo.");
+    }
   }
 }
   },

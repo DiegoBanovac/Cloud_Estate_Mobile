@@ -581,29 +581,58 @@ export default {
   },
   methods: {
     async fetchNekretnine() {
-      try {
-        const Email_agencije = localStorage.getItem("Email_agencije");
-        if (!Email_agencije) {
-          this.$q.notify({
-            type: 'negative',
-            message: 'Niste prijavljeni. Molimo prijavite se.'
-          });
-          return;
-        }
+  try {
+    // const Email_agencije = localStorage.getItem("Email_agencije"); // Ova linija više nije potrebna za API poziv
+    const token = localStorage.getItem('jwt_token'); // Dohvatite agency JWT token
 
-        const response = await axios.get(
-          `http://localhost:3000/api/nekretnine_agencija?Email_agencije=${Email_agencije}`
-        );
-        this.nekretnine = response.data;
-        this.currentSlide = this.nekretnine.map(() => 1);
-      } catch (error) {
-        console.error("Greška prilikom dohvaćanja podataka:", error);
-        this.$q.notify({
-          type: 'negative',
-          message: 'Došlo je do greške prilikom dohvaćanja nekretnina.'
-        });
+    if (!token) { // Provjera da li token postoji
+      this.$q.notify({
+        type: 'negative',
+        message: 'Niste prijavljeni kao agencija. Molimo prijavite se.'
+      });
+      // Očistite agency localStorage i preusmjerite na login agencije
+      localStorage.removeItem('jwt_token');
+      localStorage.removeItem('Naziv_agencije'); // Pretpostavljam da imate i ovo spremljeno
+      localStorage.removeItem('Email_agencije');
+      // Ovdje biste trebali dodati preusmjeravanje, npr. this.router.push('/login_agencija');
+      return;
+    }
+
+    // Konfiguracija zaglavlja s tokenom
+    const config = {
+      headers: {
+        'x-auth-token': token // Dodajte token u 'x-auth-token' zaglavlje
       }
-    },
+    };
+
+    // GET zahtjev, sada bez Email_agencije u URL-u jer se ID dohvaća iz tokena na backendu
+    const response = await axios.get(
+      "http://localhost:3000/api/nekretnine_agencija", // URL bez query parametra Email_agencije
+      config // Prosljeđivanje config objekta sa zaglavljem autorizacije
+    );
+
+    this.nekretnine = response.data;
+    this.currentSlide = this.nekretnine.map(() => 1);
+  } catch (error) {
+    console.error("Greška prilikom dohvaćanja podataka:", error);
+    // Unaprijeđeno rukovanje greškama, posebno za 401 Unauthorized
+    if (error.response && error.response.status === 401) {
+      this.$q.notify({
+        type: 'negative',
+        message: 'Sesija agencije je istekla ili niste autorizirani. Molimo prijavite se ponovno.'
+      });
+      localStorage.removeItem('agency_jwt_token'); // Obrišite nevažeći token
+      localStorage.removeItem('Naziv_agencije');
+      localStorage.removeItem('Email_agencije');
+      // Ovdje dodajte preusmjeravanje na login stranicu agencije, npr. this.router.push('/login_agencija');
+    } else {
+      this.$q.notify({
+        type: 'negative',
+        message: 'Došlo je do greške prilikom dohvaćanja nekretnina.'
+      });
+    }
+  }
+},
     // Updated getImagePath to accept the full nekretnina object
     getImagePath(filename, type, nekretnina) { // Added nekretnina parameter
       if (!filename) {
@@ -670,9 +699,29 @@ export default {
     },
     async updateNekretnina() {
       try {
+        const token = localStorage.getItem('jwt_token'); // Using 'jwt_token'
+        if (!token) {
+          this.$q.notify({
+            type: 'negative',
+            message: 'Niste prijavljeni kao agencija. Molimo prijavite se.'
+          });
+          localStorage.removeItem('jwt_token'); // Updated key
+          localStorage.removeItem('Naziv_agencije');
+          localStorage.removeItem('Email_agencije');
+          this.$router.push('/agencija_login');
+          return;
+        }
+
+        const config = {
+          headers: {
+            'x-auth-token': token
+          }
+        };
+
         const response = await axios.put(
-          `http://localhost:3000/api/nekretnine/${this.editForm.Sifra_nekretnine}`,
-          this.editForm
+          `http://localhost:3000/api/nekretnine/${this.editForm.Sifra_nekretnine}`, // Updated URL
+          this.editForm,
+          config
         );
 
         if (response.data.success) {
@@ -687,7 +736,6 @@ export default {
           );
 
           if (index !== -1) {
-            // Merge updated data into the existing object
             this.nekretnine[index] = { ...this.nekretnine[index], ...this.editForm };
           }
 
@@ -700,10 +748,31 @@ export default {
         }
       } catch (error) {
         console.error("Greška prilikom ažuriranja nekretnine:", error);
-        this.$q.notify({
-          type: 'negative',
-          message: 'Došlo je do greške prilikom ažuriranja nekretnine.'
-        });
+        if (error.response && error.response.status === 403) {
+           this.$q.notify({
+            type: 'negative',
+            message: error.response.data.msg || 'Niste ovlašteni ažurirati ovu nekretninu.'
+          });
+           localStorage.removeItem('jwt_token'); // Updated key
+           localStorage.removeItem('Naziv_agencije');
+           localStorage.removeItem('Email_agencije');
+           this.$router.push('/agencija_login');
+        } else if (error.response && error.response.status === 401) {
+           this.$q.notify({
+            type: 'negative',
+            message: error.response.data.msg || 'Sesija agencije je istekla. Molimo prijavite se ponovno.'
+          });
+           localStorage.removeItem('jwt_token'); // Updated key
+           localStorage.removeItem('Naziv_agencije');
+           localStorage.removeItem('Email_agencije');
+           this.$router.push('/agencija_login');
+        }
+        else {
+          this.$q.notify({
+            type: 'negative',
+            message: 'Došlo je do greške prilikom ažuriranja nekretnine.'
+          });
+        }
       }
     },
     // --- Methods for adding a new property ---
@@ -762,9 +831,22 @@ export default {
         return;
       }
 
+      const token = localStorage.getItem('jwt_token'); // Using 'jwt_token'
+      if (!token) {
+        this.$q.notify({
+          type: 'negative',
+          message: 'Niste prijavljeni kao agencija. Molimo prijavite se.'
+        });
+        localStorage.removeItem('jwt_token'); // Updated key
+        localStorage.removeItem('Naziv_agencije');
+        localStorage.removeItem('Email_agencije');
+        this.$router.push('/agencija_login');
+        return;
+      }
+
       const formData = new FormData();
       for (const key in this.addForm) {
-        if (this.addForm[key] !== null) {
+        if (this.addForm[key] !== null && key !== 'Email_agencije') { // Uklonjen Email_agencije iz forme
           // Special handling for Tip_nekretnine_2 needed by multer's destination logic
           // The backend expects 'Tip_nekretnine_2' to be 'stanovi', 'kuce', etc.
           // Let's derive it here based on Tip_nekretnine for formData
@@ -786,11 +868,12 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:3000/api/dodaj_nekretninu",
+          "http://localhost:3000/api/dodaj_nekretninu", // Updated URL
           formData,
           {
             headers: {
-              'Content-Type': 'multipart/form-data'
+              'Content-Type': 'multipart/form-data',
+              'x-auth-token': token
             }
           }
         );
@@ -810,16 +893,58 @@ export default {
         }
       } catch (error) {
         console.error("Greška prilikom dodavanja nekretnine:", error);
-        this.$q.notify({
-          type: 'negative',
-          message: 'Došlo je do greške prilikom dodavanja nekretnine.'
-        });
+        if (error.response && error.response.status === 403) {
+           this.$q.notify({
+            type: 'negative',
+            message: error.response.data.msg || 'Niste ovlašteni za dodavanje nekretnina.'
+          });
+           localStorage.removeItem('jwt_token'); // Updated key
+           localStorage.removeItem('Naziv_agencije');
+           localStorage.removeItem('Email_agencije');
+           this.$router.push('/agencija_login');
+        } else if (error.response && error.response.status === 401) {
+           this.$q.notify({
+            type: 'negative',
+            message: error.response.data.msg || 'Sesija agencije je istekla. Molimo prijavite se ponovno.'
+          });
+           localStorage.removeItem('jwt_token'); // Updated key
+           localStorage.removeItem('Naziv_agencije');
+           localStorage.removeItem('Email_agencije');
+           this.$router.push('/agencija_login');
+        }
+        else {
+          this.$q.notify({
+            type: 'negative',
+            message: 'Došlo je do greške prilikom dodavanja nekretnine.'
+          });
+        }
       }
     },
     // --- End methods for adding a new property ---
 
     async removeNekretnina(nekretnina) { // New method to remove a property
       try {
+        const token = localStorage.getItem('jwt_token'); // Using 'jwt_token'
+        if (!token) {
+          this.$q.notify({
+            type: 'negative',
+            message: 'Niste prijavljeni kao agencija. Molimo prijavite se.'
+          });
+          localStorage.removeItem('jwt_token'); // Updated key
+          localStorage.removeItem('Naziv_agencije');
+          localStorage.removeItem('Email_agencije');
+          this.$router.push('/agencija_login');
+          return;
+        }
+
+        const config = {
+          headers: {
+            'x-auth-token': token
+          },
+          // IMPORTANT: For DELETE requests with a body, 'data' field is used
+          data: { Tip_nekretnine: nekretnina.Tip_nekretnine }
+        };
+
         // Confirm with the user before deleting (using Quasar Dialog instead of alert)
         this.$q.dialog({
           title: 'Potvrda brisanja',
@@ -829,9 +954,8 @@ export default {
         }).onOk(async () => {
           // Send DELETE request to backend
           const response = await axios.delete(
-            `http://localhost:3000/api/nekretnine/${nekretnina.Sifra_nekretnine}`,
-            // IMPORTANT: Send Tip_nekretnine in the request body for the backend to determine the table
-            { data: { Tip_nekretnine: nekretnina.Tip_nekretnine } }
+            `http://localhost:3000/api/nekretnine/${nekretnina.Sifra_nekretnine}`, // Updated URL
+            config
           );
 
           if (response.data.success) {
@@ -854,56 +978,31 @@ export default {
         });
       } catch (error) {
         console.error("Greška prilikom brisanja nekretnine:", error);
-        this.$q.notify({
-          type: 'negative',
-          message: 'Došlo je do greške prilikom brisanja nekretnine.'
-        });
-      }
-    },
-
-    // Old removeFavorite method (if still needed elsewhere, otherwise remove)
-    async removeFavorite(nekretnina) {
-      try {
-        const Sifra_korisnika = localStorage.getItem('Sifra_korisnika');
-        if (!Sifra_korisnika) {
+        if (error.response && error.response.status === 403) {
+           this.$q.notify({
+            type: 'negative',
+            message: error.response.data.msg || 'Niste ovlašteni obrisati ovu nekretninu.'
+          });
+           localStorage.removeItem('jwt_token'); // Updated key
+           localStorage.removeItem('Naziv_agencije');
+           localStorage.removeItem('Email_agencije');
+           this.$router.push('/agencija_login');
+        } else if (error.response && error.response.status === 401) {
+           this.$q.notify({
+            type: 'negative',
+            message: error.response.data.msg || 'Sesija agencije je istekla. Molimo prijavite se ponovno.'
+          });
+           localStorage.removeItem('jwt_token'); // Updated key
+           localStorage.removeItem('Naziv_agencije');
+           localStorage.removeItem('Email_agencije');
+           this.$router.push('/agencija_login');
+        }
+        else {
           this.$q.notify({
             type: 'negative',
-            message: 'Niste prijavljeni. Molimo prijavite se.'
+            message: 'Došlo je do greške prilikom brisanja nekretnine.'
           });
-          return;
         }
-
-        const payload = {
-          Sifra_korisnika,
-          Adresa_nekretnine: nekretnina.Adresa_nekretnine,
-        };
-
-        const checkResponse = await axios.post("http://localhost:3000/api/provjeri_favorit", {
-          Sifra_korisnika,
-          Adresa_nekretnine: nekretnina.Adresa_nekretnine,
-        });
-
-        if (!checkResponse.data.exists) {
-          this.$q.notify({
-            type: 'info',
-            message: 'Nekretnina nije u favoritima.'
-          });
-          return;
-        }
-
-        await axios.post("http://localhost:3000/api/izbrisi_favorit", payload);
-        this.$q.notify({
-          type: 'positive',
-          message: 'Nekretnina je uspješno uklonjena iz favorita!'
-        });
-
-        this.fetchNekretnine();
-      } catch (error) {
-        console.error("Greška prilikom uklanjanja iz favorita:", error);
-        this.$q.notify({
-          type: 'negative',
-          message: 'Došlo je do greške. Molimo pokušajte ponovo.'
-        });
       }
     }
   },

@@ -70,7 +70,7 @@ export default {
         lozinka: this.user.password,
       })
       .then((response) => {
-        const { message, korisnik } = response.data;
+        const { message, korisnik, token } = response.data;
         console.log(message);
 
         if (korisnik && korisnik.Naziv_agencije) {
@@ -78,6 +78,7 @@ export default {
           localStorage.setItem("Naziv_agencije", korisnik.Naziv_agencije);
           localStorage.setItem("Sifra_agencije", korisnik.Sifra_agencije);
           localStorage.setItem("Email_agencije", korisnik.Email_agencije);
+          localStorage.setItem("jwt_token", token); 
         }
 
         alert("Prijava uspješna!");

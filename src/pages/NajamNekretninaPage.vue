@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <!-- Naslov -->
-    <header class="div-naslov h2 q-mb-md">Nekretnine za kupnju</header>
+    <header class="div-naslov h2 q-mb-md">Nekretnine za najam</header>
 
     <!-- Filteri i Search Bar u istom retku -->
 <!-- Filteri i Search Bar: responzivan layout -->
